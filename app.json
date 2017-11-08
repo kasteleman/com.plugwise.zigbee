@@ -1,0 +1,223 @@
+{
+  "id": "com.plugwise.zigbee",
+  "sdk": 2,
+  "name": {
+      "en": "Plugwise Zigbee Support"
+  },
+  "description": {
+      "en": "Support for Zigbee devices by Plugwise"
+  },
+  "category": "climate",
+  "version": "1.0.0",
+  "compatibility": ">=1.5.3",
+  "author": {
+      "name": "Martin Brasse",
+      "email": "kasteleman@gmail.com"
+  },
+  "images": {
+    "large": "/assets/images/large.png",
+    "small": "/assets/images/small.png"
+  },
+  "capabilities": {
+    "Heating_Demand": {
+      "title": {
+        "en": "Heating demand",
+        "nl": "Verwarmingsvraag"
+      },
+      "type": "number",
+      "getable": true,
+      "setable": false,
+      "units": {
+          "en": "%"
+      }
+    }
+  },
+  "drivers": [
+    {
+      "id": "Tom",
+      "name": {
+        "en": "Qupit “Tom” radiatorvalve",
+        "nl": "Qupit “Tom” radiatorkraan"
+      },
+      "class": "thermostat",
+      "capabilities": [
+        "measure_battery",
+        "target_temperature",
+        "measure_temperature",
+        "Heating_Demand"
+      ],
+      "capabilitiesOptions": {
+        "target_temperature": {
+          "min": 4,
+          "max": 28,
+          "step": 0.5
+        },
+        "measure_temperature": {
+          "title": {
+             "en": "Room",
+             "nl": "Kamer"
+          }
+        }
+      },
+      "mobile": {
+        "components": [
+          {
+            "id": "icon",
+            "capabilities": [
+            ]
+          },
+          {
+            "id": "battery",
+            "capabilities": [ "measure_battery" ]
+          },
+          {
+            "id": "sensor",
+            "capabilities": [ "measure_temperature" ],
+            "options": {
+              "showTitle": true
+            }
+          },
+          {
+            "id": "sensor",
+            "capabilities": [ "Heating_Demand" ],
+            "options": {
+              "icons": {
+                "Heating_Demand": "/drivers/Tom/assets/heating.svg"
+              },
+              "showTitle": true
+            }
+          },
+          {
+            "id": "thermostat",
+            "capabilities": [ "target_temperature" ]
+          }
+        ]
+      },
+      "images": {
+        "large": "drivers/Tom/assets/images/large.png",
+        "small": "drivers/Tom/assets/images/small.png"
+      },
+      "zigbee": {
+        "manufacturerName": "Plugwise",
+        "productId": "106-03",
+        "deviceId": 769,
+        "profileId": 260,
+        "learnmode": {
+          "instruction": {
+            "en": "Toggle the Plug to start pairing.\n\nIf pairing does not automatically start, try turning the Plug on and off 6 times.",
+            "nl": "Zet de Plug uit en weer aan.\n\nWordt de Plug niet automatisch toegevoegd, probeer hem dan 6 keer aan en uit te zetten."
+          }
+        }
+      },
+      "settings": [
+        {
+          "id": "temperature_Calibration",
+          "type": "number",
+          "label": {
+            "en": "Temperature Calibration",
+            "nl": "Temperatuur Calibratie"
+          },
+          "hint": {
+            "en": "Specifies a linear offset to the temperature sensor’s value.\n\nIt will result in the device interpreting all measured sensor values as measured sensor value + offset.\n\nIt does not apply to temperature values reported by other devices as a ‘remote temperature’",
+            "nl": "Specifies a linear offset to the temperature sensor’s value.\n\nIt will result in the device interpreting all measured sensor values as measured sensor value + offset.\n\nIt does not apply to temperature values reported by other devices as a ‘remote temperature’"
+          },
+          "value": 0,
+          "attr": {
+            "step": 0.1,
+            "min": -2.5,
+            "max": 2.5
+          }
+        }
+      ]
+    },
+    {
+      "id": "Lisa",
+      "name": {
+        "en": "Qupit “Lisa” zoneregulator",
+        "nl": "Qupit “Lisa” zonebediening"
+      },
+      "class": "thermostat",
+      "capabilities": [
+        "measure_battery",
+        "target_temperature",
+        "measure_temperature"
+      ],
+      "capabilitiesOptions": {
+        "target_temperature": {
+          "min": 4,
+          "max": 28,
+          "step": 0.5
+        }
+      },
+      "images": {
+        "large": "drivers/Lisa/assets/images/large.png",
+        "small": "drivers/Lisa/assets/images/small.png"
+      },
+      "zigbee": {
+        "manufacturerName": "Plugwise",
+        "productId": "158-01",
+        "deviceId": 769,
+        "profileId": 260,
+        "learnmode": {
+          "instruction": {
+            "en": "Toggle the Plug to start pairing.\n\nIf pairing does not automatically start, try turning the Plug on and off 6 times.",
+            "nl": "Zet de Plug uit en weer aan.\n\nWordt de Plug niet automatisch toegevoegd, probeer hem dan 6 keer aan en uit te zetten."
+          }
+        }
+      },
+      "settings": [
+        {
+          "id": "temperature_Calibration",
+          "type": "number",
+          "label": {
+            "en": "Temperature Calibration",
+            "nl": "Temperatuur Calibratie"
+          },
+          "hint": {
+            "en": "Specifies a linear offset to the temperature sensor’s value.\n\nIt will result in the device interpreting all measured sensor values as measured sensor value + offset.\n\nIt does not apply to temperature values reported by other devices as a ‘remote temperature’",
+            "nl": "Specifies a linear offset to the temperature sensor’s value.\n\nIt will result in the device interpreting all measured sensor values as measured sensor value + offset.\n\nIt does not apply to temperature values reported by other devices as a ‘remote temperature’"
+          },
+          "value": 0,
+          "attr": {
+            "step": 0.1,
+            "min": -2.5,
+            "max": 2.5
+          }
+        }
+      ]
+    },
+    {
+      "id": "Plug",
+      "name": {
+        "en": "Plug",
+        "nl": "Plug"
+      },
+      "class": "socket",
+      "capabilities": [
+        "onoff",
+        "meter_power",
+        "measure_power"
+      ],
+      "images": {
+        "large": "drivers/Plug/assets/images/large.png",
+        "small": "drivers/Plug/assets/images/small.png"
+      },
+      "zigbee": {
+        "manufacturerName": "Plugwise",
+        "productId": "160-01",
+        "deviceId": 81,
+        "profileId": 260,
+        "learnmode": {
+          "instruction": {
+            "en": "Toggle the Plug to start pairing.\n\nIf pairing does not automatically start, try turning the Plug on and off 6 times.",
+            "nl": "Zet de Plug uit en weer aan.\n\nWordt de Plug niet automatisch toegevoegd, probeer hem dan 6 keer aan en uit te zetten."
+          }
+        }
+      },
+      "settings": [
+      ]
+    }
+  ],
+  "flow": {
+  }
+}
