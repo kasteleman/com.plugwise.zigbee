@@ -1,5 +1,7 @@
 'use strict';
 
+const Homey = require('homey');
+
 const ZigBeeDevice = require('homey-meshdriver').ZigBeeDevice;
 
 class Tom extends ZigBeeDevice {
@@ -189,6 +191,13 @@ class Tom extends ZigBeeDevice {
 			this.log('hvacThermostat - pIHeatingDemand: ', value);
 			this.setCapabilityValue('Heating_Demand', value);
 		}, 0);
+
+		this.pIHeatingDemandTrigger = new Homey.FlowCardTriggerDevice('pIHeatingDemand_changed')
+			.register()
+			.registerRunListener((args, state) => {
+				this.log(args, state);
+				return Promise.resolve(args.button === state.button);
+			});
 
 		// battery reporting
 		this.registerAttrReportListener('genPowerCfg', 'batteryPercentageRemaining', 1, 3600, null, value => {

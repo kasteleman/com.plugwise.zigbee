@@ -219,5 +219,35 @@
     }
   ],
   "flow": {
+    "triggers": [
+     {
+         "id": "pIHeatingDemand_changed",
+         "title": {
+             "en": "Heating Demand changed",
+             "nl": "Verwarmingsvraag veranderd"
+         },
+         "tokens": [
+           {
+               "name": "valve_number",
+               "type": "number",
+               "title": {
+                   "en": "Heatingdemand",
+                   "nl": "Verwarmingsvraag"
+               },
+               "example": {
+                   "en": "10 for 10%",
+                   "nl": "10 voor 10%"
+               }
+           }
+         ],
+         "args": [
+             {
+                 "name": "device",
+                 "type": "device",
+                 "filter": "driver_id=Tom"
+             }
+         ]
+     }
+ ]
   }
 }
