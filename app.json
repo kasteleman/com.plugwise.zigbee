@@ -30,6 +30,27 @@
       "units": {
           "en": "%"
       }
+    },
+    "meter_received": {
+      "title": {
+        "en": "Power Received",
+        "nl": "Ontvangen"
+      },
+      "type": "number",
+      "getable": true,
+      "setable": false,
+      "units": {
+          "en": "KWh"
+      }
+    },
+    "alarm_poweroverload": {
+      "title": {
+        "en": "Overload",
+        "nl": "Overbelast"
+      },
+      "type": "boolean",
+      "getable": true,
+      "setable": false
     }
   },
   "drivers": [
@@ -192,12 +213,46 @@
         "en": "Plug",
         "nl": "Plug"
       },
-      "class": "socket",
+      "class": "other",
       "capabilities": [
         "onoff",
         "meter_power",
-        "measure_power"
+        "meter_received",
+        "measure_power",
+        "alarm_poweroverload"
       ],
+      "mobile": {
+      "components": [
+        {
+          "id": "icon",
+          "capabilities": [
+            "onoff"
+          ]
+        },
+      {
+        "id": "sensor",
+        "capabilities": [
+          "meter_power",
+          "meter_received",
+          "measure_power",
+          "alarm_poweroverload"
+        ],
+        "options": {
+          "icons": {
+            "alarm_poweroverload": "/drivers/Plug/assets/overload.svg",
+            "meter_received": "/drivers/Plug/assets/meter_received.svg"
+          },
+          "showTitle": true
+          }
+        },
+        {
+          "id": "toggle",
+          "capabilities": [
+            "onoff"
+          ]
+        }
+        ]
+      },
       "images": {
         "large": "drivers/Plug/assets/images/large.png",
         "small": "drivers/Plug/assets/images/small.png"
@@ -205,7 +260,7 @@
       "zigbee": {
         "manufacturerName": "Plugwise",
         "productId": "160-01",
-        "deviceId": 81,
+        "deviceId": 9,
         "profileId": 260,
         "learnmode": {
           "instruction": {
