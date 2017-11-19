@@ -11,12 +11,58 @@ class Plug extends ZigBeeDevice {
 		this.enableDebug();
 
 		if (this.hasCapability('onoff')) this.registerCapability('onoff', 'genOnOff');
-		if (this.hasCapability('meter_power')) this.registerCapability('meter_power', 'seMetering');
-		if (this.hasCapability('meter_received')) this.registerCapability('meter_received', 'seMetering');
-		if (this.hasCapability('measure_power')) this.registerCapability('measure_power', 'seMetering');
+		if (this.hasCapability('meter_power')) {
+			this.registerCapability('meter_power', 'seMetering', {
+				get: 'currentSummDelivered',
+				reportParser(value) {
+					this.log('value: ', value);
+					return Buffer.from(value).readUIntBE(0, 2) / 1000;
+				},
+				report: 'currentSummDelivered',
+				getOpts: {
+					getOnStart: true,
+				},
+
+			});
+		}
+
+		if (this.hasCapability('meter_received')) {
+			this.registerCapability('meter_received', 'seMetering', {
+				get: 'currentSummReceived',
+				reportParser(value) {
+					this.log('value: ', value);
+					return Buffer.from(value).readUIntBE(0, 2) / 1000;
+				},
+				report: 'currentSummReceived',
+				getOpts: {
+					getOnStart: true,
+				},
+			});
+		}
+
+		if (this.hasCapability('measure_power')) {
+			this.registerCapability('measure_power', 'seMetering', {
+				get: 'instantaneousDemand',
+				reportParser(value) {
+					if (value === -2) return;
+					return value / 10;
+				},
+				report: 'instantaneousDemand',
+				getOpts: {
+					getOnStart: true,
+				},
+			});
+		}
+
 		if (this.hasCapability('alarm_poweroverload')) {
 			this.registerCapability('alarm_poweroverload', 'haElectricalMeasurement', {
+				get: 'acActivePowerOverload',
+				reportParser(value) {
+					return value === 1;
+				},
+				report: 'acActivePowerOverload',
 				getOpts: {
+					getOnStart: true,
 					pollInterval: 300000,
 				},
 			});
