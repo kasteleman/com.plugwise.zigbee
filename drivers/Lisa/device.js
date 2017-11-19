@@ -13,14 +13,7 @@ class Lisa extends ZigBeeDevice {
 		this.registerCapability('target_temperature', 'hvacThermostat', {
 			set: 'occupiedHeatingSetpoint',
 			setParser(value) {
-				this.node.endpoints[0].clusters.hvacThermostat.write('occupiedHeatingSetpoint', Math.round(value * 1000 / 10))
-					.then(res => {
-						this.log('write res', res);
-					})
-					.catch(err => {
-						this.error('write err', err);
-					});
-				return null;
+				this.setCommandParser(value).bind(this);
 			},
 			get: 'occupiedHeatingSetpoint',
 			reportParser(value) {
@@ -43,6 +36,10 @@ class Lisa extends ZigBeeDevice {
 				return Math.round((value / 100) * 10) / 10;
 			},
 			report: 'localTemp',
+			getOpts: {
+				getOnLine: true,
+				getOnStart: true,
+			},
 		});
 
 		this.registerAttrReportListener('hvacThermostat', 'localTemp', 1, 300, 50, value => {
@@ -52,6 +49,15 @@ class Lisa extends ZigBeeDevice {
 		}, 0);
 
 		// battery reporting
+		if (this.hasCapability('measure_battery')) {
+			this.registerCapability('measure_battery', 'genPowerCfg', {
+				getOpts: {
+					getOnLine: true,
+					getOnStart: true,
+				},
+			});
+		}
+
 		this.registerAttrReportListener('genPowerCfg', 'batteryPercentageRemaining', 1, 3600, null, value => {
 			const parsedValue = Math.round(value / 2);
 			this.log('genPowerCfg - batteryPercentageRemaining: ', value, parsedValue);
@@ -80,6 +86,19 @@ class Lisa extends ZigBeeDevice {
 				});
 		}
 	}
+
+	setCommandParser(data) {
+		this.node.endpoints[0].clusters.hvacThermostat.write('occupiedHeatingSetpoint',
+			Math.round(data * 1000 / 10))
+			.then(res => {
+				this.log('write occupiedHeatingSetpoint: ', res);
+			})
+			.catch(err => {
+				this.error('Error write occupiedHeatingSetpoint: ', err);
+			});
+		return null;
+	}
+
 }
 
 module.exports = Lisa;

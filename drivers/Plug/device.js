@@ -1,11 +1,12 @@
 'use strict';
 
+const Homey = require('homey');
+
 const ZigBeeDevice = require('homey-meshdriver').ZigBeeDevice;
 
 class Plug extends ZigBeeDevice {
 
 	onMeshInit() {
-		// super.onMeshInit();
 		this.printNode();
 		this.enableDebug();
 
@@ -50,6 +51,21 @@ class Plug extends ZigBeeDevice {
 			// this.log('currentSummReceived', value, parsedValue);
 			this.setCapabilityValue('meter_received', parsedValue);
 		}, 0);
+
+		this.meter_receivedTrigger = new Homey.FlowCardTriggerDevice('Power_received_changed')
+			.register()
+			.registerRunListener((args, state) => {
+				this.log(args, state);
+				return Promise.resolve(args.button === state.button);
+			});
+
+		this.poweroverload_changedTrigger = new Homey.FlowCardTriggerDevice('poweroverload_changed')
+			.register()
+			.registerRunListener((args, state) => {
+				this.log(args, state);
+				return Promise.resolve(args.button === state.button);
+			});
+
 	}
 
 }

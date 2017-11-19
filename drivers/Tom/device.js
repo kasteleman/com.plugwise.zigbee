@@ -9,7 +9,7 @@ class Tom extends ZigBeeDevice {
 	onMeshInit() {
 		this.printNode();
 		this.enableDebug();
-		let heatingType = 1;
+		this.heatingType = 1;
 
 		// write programingOperMode
 		this.node.endpoints[0].clusters.hvacThermostat.write('programingOperMode', 2)
@@ -27,12 +27,10 @@ class Tom extends ZigBeeDevice {
 			.then(result => {
 				this.log('ocupancy: ', result);
 				if (result === 1) {
-					heatingType = 1;
-					// this.setCapabilityValue('my_occupancy', 'occupied');
+					this.heatingType = 1;
 				}
 				if (result === 0) {
-					heatingType = 0;
-					// this.setCapabilityValue('my_occupancy', 'unoccupied');
+					this.heatingType = 0;
 				}
 			})
 			.catch(err => {
@@ -45,28 +43,7 @@ class Tom extends ZigBeeDevice {
 		this.registerCapability('target_temperature', 'hvacThermostat', {
 			set: 'occupiedHeatingSetpoint',
 			setParser(value) {
-				if (heatingType === 1) {
-					this.node.endpoints[0].clusters.hvacThermostat.write('occupiedHeatingSetpoint',
-						Math.round(value * 1000 / 10))
-						.then(res => {
-							this.log('write occupiedHeatingSetpoint: ', res);
-						})
-						.catch(err => {
-							this.error('Error write occupiedHeatingSetpoint: ', err);
-						});
-					return null;
-				}
-				if (heatingType === 0) {
-					this.node.endpoints[0].clusters.hvacThermostat.write('unoccupiedHeatingSetpoint',
-						Math.round(value * 1000 / 10))
-						.then(res => {
-							this.log('write unoccupiedHeatingSetpoint: ', res);
-						})
-						.catch(err => {
-							this.error('Error write unoccupiedHeatingSetpoint: ', err);
-						});
-					return null;
-				}
+				this.setCommandParser(value).bind(this);
 			},
 			get: 'occupiedHeatingSetpoint',
 			reportParser(value) {
@@ -75,23 +52,24 @@ class Tom extends ZigBeeDevice {
 			report: 'occupiedHeatingSetpoint',
 			getOpts: {
 				getOnLine: true,
+				getOnStart: true,
 			},
 		});
 
 		// reportlisteners for the occupiedHeatingSetpoint
 		// this is the setpoint if ocupancy is set to 1, this is per default
 		// if ocupancy is set to 0, unoccupiedHeatingSetpoint is the setpoint for the Heating
-		this.registerAttrReportListener('hvacThermostat', 'occupiedHeatingSetpoint', 1, 0, 10, data => {
+		/* this.registerAttrReportListener('hvacThermostat', 'occupiedHeatingSetpoint', 1, 0, 10, data => {
 			const parsedValue = Math.round((data / 100) * 10) / 10;
 			this.log('occupiedHeatingSetpoint: ', data, parsedValue);
-			this.setCapabilityValue('target_temperature', parsedValue);
+			if (this.heatingType === 1) this.setCapabilityValue('target_temperature', parsedValue);
 		}, 0);
 
 		this.registerAttrReportListener('hvacThermostat', 'unoccupiedHeatingSetpoint', 1, 0, 10, data => {
 			const parsedValue = Math.round((data / 100) * 10) / 10;
 			this.log('unoccupiedHeatingSetpoint: ', data, parsedValue);
-			this.setCapabilityValue('target_temperature', parsedValue);
-		}, 0);
+			if (this.heatingType === 0) this.setCapabilityValue('target_temperature', parsedValue);
+		}, 0); */
 
 		// local temperature
 		this.registerCapability('measure_temperature', 'hvacThermostat', {
@@ -100,6 +78,10 @@ class Tom extends ZigBeeDevice {
 				return Math.round((value / 100) * 10) / 10;
 			},
 			report: 'localTemp',
+			getOpts: {
+				getOnLine: true,
+				getOnStart: true,
+			},
 		});
 
 		this.registerAttrReportListener('hvacThermostat', 'localTemp', 1, 300, 50, value => {
@@ -115,6 +97,10 @@ class Tom extends ZigBeeDevice {
 				return value;
 			},
 			report: 'pIHeatingDemand',
+			getOpts: {
+				getOnLine: true,
+				getOnStart: true,
+			},
 		});
 
 		this.registerAttrReportListener('hvacThermostat', 'pIHeatingDemand', 1, 300, 1, value => {
@@ -130,6 +116,15 @@ class Tom extends ZigBeeDevice {
 			});
 
 		// battery reporting
+		if (this.hasCapability('measure_battery')) {
+			this.registerCapability('measure_battery', 'genPowerCfg', {
+				getOpts: {
+					getOnLine: true,
+					getOnStart: true,
+				},
+			});
+		}
+
 		this.registerAttrReportListener('genPowerCfg', 'batteryPercentageRemaining', 1, 3600, null, value => {
 			const parsedValue = Math.round(value / 2);
 			this.log('genPowerCfg - batteryPercentageRemaining: ', value, parsedValue);
@@ -156,6 +151,33 @@ class Tom extends ZigBeeDevice {
 					this.log('could not write localTemperatureCalibration');
 					this.log(err);
 				});
+		}
+	}
+
+	// this method handles the set command
+
+	setCommandParser(data) {
+		if (this.heatingType === 1) {
+			this.node.endpoints[0].clusters.hvacThermostat.write('occupiedHeatingSetpoint',
+				Math.round(data * 1000 / 10))
+				.then(res => {
+					this.log('write occupiedHeatingSetpoint: ', res);
+				})
+				.catch(err => {
+					this.error('Error write occupiedHeatingSetpoint: ', err);
+				});
+			return null;
+		}
+		if (this.heatingType === 0) {
+			this.node.endpoints[0].clusters.hvacThermostat.write('unoccupiedHeatingSetpoint',
+				Math.round(data * 1000 / 10))
+				.then(res => {
+					this.log('write unoccupiedHeatingSetpoint: ', res);
+				})
+				.catch(err => {
+					this.error('Error write unoccupiedHeatingSetpoint: ', err);
+				});
+			return null;
 		}
 	}
 

@@ -213,7 +213,7 @@
         "en": "Plug",
         "nl": "Plug"
       },
-      "class": "other",
+      "class": "socket",
       "capabilities": [
         "onoff",
         "meter_power",
@@ -302,7 +302,59 @@
                  "filter": "driver_id=Tom"
              }
          ]
+     },
+     {
+         "id": "Power_received_changed",
+         "title": {
+             "en": "Power received changed",
+             "nl": "Ontvangen meterstand is veranderd"
+         },
+         "tokens": [
+           {
+               "name": "meter_received_number",
+               "type": "number",
+               "title": {
+                   "en": "Received",
+                   "nl": "Ontvangen"
+               },
+               "example": {
+                   "en": "KWh",
+                   "nl": "KWh"
+               }
+           }
+         ],
+         "args": [
+             {
+                 "name": "device",
+                 "type": "device",
+                 "filter": "driver_id=Plug"
+             }
+         ]
+     },
+     {
+         "id": "poweroverload_changed",
+         "title": {
+             "en": "Power overload detected",
+             "nl": "Overbelasting geconstateerd"
+         },
+         "tokens": [
+           {
+               "name": "power_overload",
+               "type": "boolean",
+               "title": {
+                   "en": "Poweroverload",
+                   "nl": "Overbelasting"
+               }
+           }
+         ],
+         "args": [
+             {
+                 "name": "device",
+                 "type": "device",
+                 "filter": "driver_id=Plug"
+             }
+         ]
      }
- ]
+   ]
   }
 }
