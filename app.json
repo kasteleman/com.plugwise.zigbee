@@ -141,7 +141,7 @@
           },
           "hint": {
             "en": "Specifies a linear offset to the temperature sensor’s value.\n\nIt will result in the device interpreting all measured sensor values as measured sensor value + offset.\n\nIt does not apply to temperature values reported by other devices as a ‘remote temperature’",
-            "nl": "Specifies a linear offset to the temperature sensor’s value.\n\nIt will result in the device interpreting all measured sensor values as measured sensor value + offset.\n\nIt does not apply to temperature values reported by other devices as a ‘remote temperature’"
+            "nl": "Specificeert een lineaire offset van de waarde van de temperatuursensor.\n\nHet resultaat is dat het apparaat alle gemeten sensorwaarden interpreteert als gemeten sensorwaarde + offset.\n\nHet is niet van toepassing op temperatuurwaarden die door andere apparaten worden gemeld als een ‘externe temperatuur’"
           },
           "value": 0,
           "attr": {
@@ -198,7 +198,7 @@
           },
           "hint": {
             "en": "Specifies a linear offset to the temperature sensor’s value.\n\nIt will result in the device interpreting all measured sensor values as measured sensor value + offset.\n\nIt does not apply to temperature values reported by other devices as a ‘remote temperature’",
-            "nl": "Specifies a linear offset to the temperature sensor’s value.\n\nIt will result in the device interpreting all measured sensor values as measured sensor value + offset.\n\nIt does not apply to temperature values reported by other devices as a ‘remote temperature’"
+            "nl": "Specificeert een lineaire offset van de waarde van de temperatuursensor.\n\nHet resultaat is dat het apparaat alle gemeten sensorwaarden interpreteert als gemeten sensorwaarde + offset.\n\nHet is niet van toepassing op temperatuurwaarden die door andere apparaten worden gemeld als een ‘externe temperatuur’"
           },
           "value": 0,
           "attr": {
