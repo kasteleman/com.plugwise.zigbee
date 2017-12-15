@@ -95,21 +95,28 @@ class Plug extends ZigBeeDevice {
 		this.registerAttrReportListener('seMetering', 'currentSummReceived', 600, 600, [null, null], value => {
 			const parsedValue = Buffer.from(value).readUIntBE(0, 2) / 1000;
 			// this.log('currentSummReceived', value, parsedValue);
-			this.setCapabilityValue('meter_received', parsedValue);
+			const test = this.getCapabilityValue('meter_received');
+			this.log('previous meter_received value :', test);
+			if (value !== test) {
+				this.meter_receivedTrigger.trigger(this, { Received: parsedValue }, null)
+					.then(this.log)
+					.catch(this.error);
+				this.setCapabilityValue('meter_received', parsedValue);
+			}
 		}, 0);
 
 		this.meter_receivedTrigger = new Homey.FlowCardTriggerDevice('Power_received_changed')
 			.register()
 			.registerRunListener((args, state) => {
 				this.log(args, state);
-				return Promise.resolve(args.button === state.button);
+				return Promise.resolve(args.meter_received_number === state.meter_received_number);
 			});
 
-		this.poweroverload_changedTrigger = new Homey.FlowCardTriggerDevice('poweroverload_changed')
+		this.power_overloadTrigger = new Homey.FlowCardTriggerDevice('poweroverload_changed')
 			.register()
 			.registerRunListener((args, state) => {
 				this.log(args, state);
-				return Promise.resolve(args.button === state.button);
+				return Promise.resolve(args.poweroverload_changed === state.poweroverload_changed);
 			});
 
 	}

@@ -1,10 +1,11 @@
 # Plugwise Zigbee Support
 
-Support for Tom, Lisa and Plug by Plugwise
+Initial Support for Tom, Lisa and Plug by Plugwise
 
 Plug:
 
-Alarm Power Overload is experimental. Could not validate ;-)
+Alarm Power Overload is experimental and not (yet) functional within flow manager.
+Could not validate ;-)
 
 ## Feedback:
 

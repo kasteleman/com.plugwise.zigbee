@@ -9,7 +9,7 @@
   },
   "category": "climate",
   "version": "1.0.0",
-  "compatibility": ">=1.5.3",
+  "compatibility": ">=1.5.4",
   "author": {
       "name": "Martin Brasse",
       "email": "kasteleman@gmail.com"
@@ -124,9 +124,10 @@
         "deviceId": 769,
         "profileId": 260,
         "learnmode": {
+          "image": "drivers/Tom/assets/learnmode.svg",
           "instruction": {
-            "en": "Toggle the Plug to start pairing.\n\nIf pairing does not automatically start, try turning the Plug on and off 6 times.",
-            "nl": "Zet de Plug uit en weer aan.\n\nWordt de Plug niet automatisch toegevoegd, probeer hem dan 6 keer aan en uit te zetten."
+            "en": "TOM contains one push button underneath its cap.\n\nPress the button briefly so TOM becomes visible for the ZigBee-gateway, so you can add TOM to the network.\n\nIt is possible to remove TOM from the network:\n\n1. Press the button for 3 seconds and release.\n2. Within 1 second, press again the button for 3 seconds and release.\n3. Within 1 second, press the button for 10 seconds and release.\n\nAfter you have released the button, the LED will burn solid red for 5 seconds: TOM has left the network.",
+            "nl": "Onder de kap heeft TOM een drukknop.\n\nDruk kort op de knop zodat TOM zichtbaar wordt voor de ZigBee-gateway en kan worden toegevoegd aan het netwerk.\n\nJe kunt TOM verwijderen uit het netwerk:\n\n1. Druk de knop 3 seconden in en laat los.\n2. Druk binnen 1 seconde opnieuw de knop 3 seconden in en laat los.\n3. Druk binnen 1 seconde de knop 10 seconden in en laat los.\n\nNadat je de knop hebt losgelaten, brandt de LED 5 seconden. TOM verlaat nu het netwerk."
           }
         }
       },
@@ -180,9 +181,10 @@
         "deviceId": 769,
         "profileId": 260,
         "learnmode": {
+          "image": "drivers/Lisa/assets/learnmode.svg",
           "instruction": {
-            "en": "Toggle the Plug to start pairing.\n\nIf pairing does not automatically start, try turning the Plug on and off 6 times.",
-            "nl": "Zet de Plug uit en weer aan.\n\nWordt de Plug niet automatisch toegevoegd, probeer hem dan 6 keer aan en uit te zetten."
+            "en": "The zone control contains a push button underneath the back cover\n\nPress the button briefly allowing the zone control to be visible for the gateway. When the zone control is not paired, it will try to join an available network after prrssing the button.\n\nTo remove from a network:\n\n1. Press and hold the button on the backside for 3 seconds and release.\n2. Within 1 second, press and hold the button for 3 seconds again and release.\n3. Within 1 second, press and hold the button for 10 seconds and release.\n\nAfter you have released the button, the LED will burn solid re for 5 seconds: the zone control has left the network.",
+            "nl": "Onder de achterkant van de zonebediening vind je een drukknop.\n\nDruk kort op de knop, zodat de zonebediening zichtbaar wordt voor de ZigBee-gateway. Indien de zonebediening nog niet op een ander netwerk is aangemeld, zal deze nu aanmelden op een beschikbaar netwerk.\n\nVoor verwijdering uit het netwerk voer de volgende acties uit:\n\n 1. Druk de knop op de achterkant 3 seconden in en laat los.\n2. Druk binnen 1 seconde opnieuw de knop 3 seconden in en laat los\n3. Druk binnen 1 seconde de knop 10 seconden in en laat los.\n\nNadat je de knop hebt losgelaten, brandt de LED 5 seconden: de zonebediening verlaat nu het netwerk."
           }
         }
       },
@@ -263,9 +265,10 @@
         "deviceId": 9,
         "profileId": 260,
         "learnmode": {
+          "image": "drivers/Plug/assets/learnmode.svg",
           "instruction": {
-            "en": "Toggle the Plug to start pairing.\n\nIf pairing does not automatically start, try turning the Plug on and off 6 times.",
-            "nl": "Zet de Plug uit en weer aan.\n\nWordt de Plug niet automatisch toegevoegd, probeer hem dan 6 keer aan en uit te zetten."
+            "en": "Press the button briefly allowing the plug to be visible for the ZigBee network.\n\nWhen the plug is not paired, it will try to join an available network after pressing this button.\n\nPress and hold the button on the side for 5 seconds and release.\n\nAfter you have released the button, the LED will burn solid red for 5 seconds: the pliug has left the network.",
+            "nl": "Druk kort op de knop zodat de plug zichtbaar wordt voor het ZigBee-netwerk.\n\nAls de plug nog niet op een ander netwerk is aangemeld, zal de plug zich nu aanmelden op het beschikbare netwerk.\n\nOm de plug uit een netwerk te verwijderen, druk de knop op de zijkant 5 seconden in en laat los.\n\nDe LED brandt 5 seconden rood om aan te geven dat deze het netwerk verlaat."
           }
         }
       },
@@ -289,10 +292,7 @@
                    "en": "Heatingdemand",
                    "nl": "Verwarmingsvraag"
                },
-               "example": {
-                   "en": "10 for 10%",
-                   "nl": "10 voor 10%"
-               }
+               "example": 10
            }
          ],
          "args": [
@@ -317,10 +317,7 @@
                    "en": "Received",
                    "nl": "Ontvangen"
                },
-               "example": {
-                   "en": "KWh",
-                   "nl": "KWh"
-               }
+               "example": 1.1
            }
          ],
          "args": [

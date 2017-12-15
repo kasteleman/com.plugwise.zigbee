@@ -13,7 +13,15 @@ class Lisa extends ZigBeeDevice {
 		this.registerCapability('target_temperature', 'hvacThermostat', {
 			set: 'occupiedHeatingSetpoint',
 			setParser(value) {
-				this.setCommandParser(value).bind(this);
+				this.node.endpoints[0].clusters.hvacThermostat.write('occupiedHeatingSetpoint',
+					Math.round(value * 1000 / 10))
+					.then(res => {
+						this.log('write occupiedHeatingSetpoint: ', res);
+					})
+					.catch(err => {
+						this.error('Error write occupiedHeatingSetpoint: ', err);
+					});
+				return null;
 			},
 			get: 'occupiedHeatingSetpoint',
 			reportParser(value) {
@@ -23,7 +31,7 @@ class Lisa extends ZigBeeDevice {
 		});
 
 		// reportlisteners for the occupiedHeatingSetpoint
-		this.registerAttrReportListener('hvacThermostat', 'occupiedHeatingSetpoint', 1, 0, 10, data => {
+		this.registerAttrReportListener('hvacThermostat', 'occupiedHeatingSetpoint', 300, 0, 10, data => {
 			const parsedValue = Math.round((data / 100) * 10) / 10;
 			this.log('occupiedHeatingSetpoint: ', data, parsedValue);
 			this.setCapabilityValue('target_temperature', parsedValue);
@@ -85,18 +93,6 @@ class Lisa extends ZigBeeDevice {
 					this.log(err);
 				});
 		}
-	}
-
-	setCommandParser(data) {
-		this.node.endpoints[0].clusters.hvacThermostat.write('occupiedHeatingSetpoint',
-			Math.round(data * 1000 / 10))
-			.then(res => {
-				this.log('write occupiedHeatingSetpoint: ', res);
-			})
-			.catch(err => {
-				this.error('Error write occupiedHeatingSetpoint: ', err);
-			});
-		return null;
 	}
 
 }

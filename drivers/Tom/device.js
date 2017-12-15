@@ -43,7 +43,30 @@ class Tom extends ZigBeeDevice {
 		this.registerCapability('target_temperature', 'hvacThermostat', {
 			set: 'occupiedHeatingSetpoint',
 			setParser(value) {
-				this.setCommandParser(value).bind(this);
+				// this.setCommandParser(value).bind(this);
+				if (this.heatingType === 1) {
+					this.node.endpoints[0].clusters.hvacThermostat.write('occupiedHeatingSetpoint',
+						Math.round(value * 1000 / 10))
+						.then(res => {
+							this.log('write occupiedHeatingSetpoint: ', res);
+						})
+						.catch(err => {
+							this.error('Error write occupiedHeatingSetpoint: ', err);
+						});
+					return null;
+				}
+				if (this.heatingType === 0) {
+					this.node.endpoints[0].clusters.hvacThermostat.write('unoccupiedHeatingSetpoint',
+						Math.round(value * 1000 / 10))
+						.then(res => {
+							this.log('write unoccupiedHeatingSetpoint: ', res);
+						})
+						.catch(err => {
+							this.error('Error write unoccupiedHeatingSetpoint: ', err);
+						});
+					return null;
+				}
+
 			},
 			get: 'occupiedHeatingSetpoint',
 			reportParser(value) {
@@ -59,17 +82,17 @@ class Tom extends ZigBeeDevice {
 		// reportlisteners for the occupiedHeatingSetpoint
 		// this is the setpoint if ocupancy is set to 1, this is per default
 		// if ocupancy is set to 0, unoccupiedHeatingSetpoint is the setpoint for the Heating
-		/* this.registerAttrReportListener('hvacThermostat', 'occupiedHeatingSetpoint', 1, 0, 10, data => {
+		this.registerAttrReportListener('hvacThermostat', 'occupiedHeatingSetpoint', 300, 0, 10, data => {
 			const parsedValue = Math.round((data / 100) * 10) / 10;
 			this.log('occupiedHeatingSetpoint: ', data, parsedValue);
 			if (this.heatingType === 1) this.setCapabilityValue('target_temperature', parsedValue);
 		}, 0);
 
-		this.registerAttrReportListener('hvacThermostat', 'unoccupiedHeatingSetpoint', 1, 0, 10, data => {
+		this.registerAttrReportListener('hvacThermostat', 'unoccupiedHeatingSetpoint', 300, 0, 10, data => {
 			const parsedValue = Math.round((data / 100) * 10) / 10;
 			this.log('unoccupiedHeatingSetpoint: ', data, parsedValue);
 			if (this.heatingType === 0) this.setCapabilityValue('target_temperature', parsedValue);
-		}, 0); */
+		}, 0);
 
 		// local temperature
 		this.registerCapability('measure_temperature', 'hvacThermostat', {
@@ -105,14 +128,21 @@ class Tom extends ZigBeeDevice {
 
 		this.registerAttrReportListener('hvacThermostat', 'pIHeatingDemand', 1, 300, 1, value => {
 			this.log('hvacThermostat - pIHeatingDemand: ', value);
-			this.setCapabilityValue('Heating_Demand', value);
+			const test = this.getCapabilityValue('Heating_Demand');
+			this.log('previous valve value :', test);
+			if (value !== test) {
+				this.pIHeatingDemandTrigger.trigger(this, { valve_number: value }, null)
+					.then(this.log)
+					.catch(this.error);
+				this.setCapabilityValue('Heating_Demand', value);
+			}
 		}, 0);
 
 		this.pIHeatingDemandTrigger = new Homey.FlowCardTriggerDevice('pIHeatingDemand_changed')
 			.register()
 			.registerRunListener((args, state) => {
-				this.log(args, state);
-				return Promise.resolve(args.button === state.button);
+				this.log(args.valve_number, state.valve_numberargs, args.valve_number === state.valve_number);
+				return Promise.resolve(args.valve_number === state.valve_number);
 			});
 
 		// battery reporting
@@ -151,33 +181,6 @@ class Tom extends ZigBeeDevice {
 					this.log('could not write localTemperatureCalibration');
 					this.log(err);
 				});
-		}
-	}
-
-	// this method handles the set command
-
-	setCommandParser(data) {
-		if (this.heatingType === 1) {
-			this.node.endpoints[0].clusters.hvacThermostat.write('occupiedHeatingSetpoint',
-				Math.round(data * 1000 / 10))
-				.then(res => {
-					this.log('write occupiedHeatingSetpoint: ', res);
-				})
-				.catch(err => {
-					this.error('Error write occupiedHeatingSetpoint: ', err);
-				});
-			return null;
-		}
-		if (this.heatingType === 0) {
-			this.node.endpoints[0].clusters.hvacThermostat.write('unoccupiedHeatingSetpoint',
-				Math.round(data * 1000 / 10))
-				.then(res => {
-					this.log('write unoccupiedHeatingSetpoint: ', res);
-				})
-				.catch(err => {
-					this.error('Error write unoccupiedHeatingSetpoint: ', err);
-				});
-			return null;
 		}
 	}
 
