@@ -2,6 +2,12 @@
 
 Initial Support for Tom, Lisa and Plug by Plugwise
 
+Min Homey Firmware: 1.5.4
+
+Lisa: [Dutch product info](https://www.getqupit.com/product/zonebediening/)
+
+Tom: [Dutch product info](https://www.getqupit.com/product/radiatorkraan/)
+
 Plug:
 
 Alarm Power Overload is experimental and not (yet) functional within flow manager.
