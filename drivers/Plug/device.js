@@ -44,7 +44,7 @@ class Plug extends ZigBeeDevice {
 			this.registerCapability('measure_power', 'seMetering', {
 				get: 'instantaneousDemand',
 				reportParser(value) {
-					if (value === -2) return;
+					if (value < 0) return;
 					return value / 10;
 				},
 				report: 'instantaneousDemand',
@@ -77,7 +77,7 @@ class Plug extends ZigBeeDevice {
 		// Report is send if status is changed with min of 2 Watt or after 5 min
 		this.registerAttrReportListener('seMetering', 'instantaneousDemand', 10, 300, 10, value => {
 			const parsedValue = value / 10;
-			if (value === -2) return;
+			if (value < 0) return;
 			// this.log('instantaneousDemand', value, parsedValue);
 			this.setCapabilityValue('measure_power', parsedValue);
 		}, 0);
