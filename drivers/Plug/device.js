@@ -75,35 +75,59 @@ class Plug extends ZigBeeDevice {
 
 		// measure_power
 		// Report is send if status is changed with min of 2 Watt or after 5 min
-		this.registerAttrReportListener('seMetering', 'instantaneousDemand', 10, 300, 10, value => {
-			const parsedValue = value / 10;
-			if (value < 0) return;
-			// this.log('instantaneousDemand', value, parsedValue);
-			this.setCapabilityValue('measure_power', parsedValue);
-		}, 0);
+		if (this.hasCapability('measure_power')) {
+			this.registerCapability('measure_power', 'seMetering', { endpoint: this.meteringEnpoint });
+			this.registerAttrReportListener('seMetering', 'instantaneousDemand', 10, 300, 2,
+				this.onMeteringReport.bind(this), this.meteringEnpoint)
+				.catch(err => {
+					this.error('failed to register attr report listener - seMetering/instantaneousDemand', err);
+				});
+		}
+		// this.registerAttrReportListener('seMetering', 'instantaneousDemand', 10, 300, 2, value => {
+		//	const parsedValue = value / 10;
+		//	if (value < 0) return;
+		// this.log('instantaneousDemand', value, parsedValue);
+		//	this.setCapabilityValue('measure_power', parsedValue);
+		// }, 0);
 
 		// meter_power
 		// Report is send in 10 min. Can not be changed.
-		this.registerAttrReportListener('seMetering', 'currentSummDelivered', 600, 600, [null, null], value => {
-			const parsedValue = Buffer.from(value).readUIntBE(0, 2) / 1000;
-			// this.log('currentSummDelivered', value, parsedValue);
-			this.setCapabilityValue('meter_power', parsedValue);
-		}, 0);
+		if (this.hasCapability('meter_power')) {
+			this.registerCapability('meter_power', 'seMetering', { endpoint: this.currentSummDeliveredEnpoint });
+			this.registerAttrReportListener('seMetering', 'currentSummDelivered', 600, 600, [null, null],
+				this.oncurrentSummDelivered.bind(this), this.currentSummDeliveredEnpoint)
+				.catch(err => {
+					this.error('failed to register attr report listener - seMetering/currentSummDelivered', err);
+				});
+		}
+		// this.registerAttrReportListener('seMetering', 'currentSummDelivered', 600, 600, [null, null], value => {
+		//	const parsedValue = Buffer.from(value).readUIntBE(0, 2) / 1000;
+		// this.log('currentSummDelivered', value, parsedValue);
+		//	this.setCapabilityValue('meter_power', parsedValue);
+		// }, 0);
 
 		// meter_received
 		// Report is send in 10 min. Can not be changed.
-		this.registerAttrReportListener('seMetering', 'currentSummReceived', 600, 600, [null, null], value => {
-			const parsedValue = Buffer.from(value).readUIntBE(0, 2) / 1000;
-			// this.log('currentSummReceived', value, parsedValue);
-			const test = this.getCapabilityValue('meter_received');
-			this.log('previous meter_received value :', test);
-			if (value !== test) {
-				this.meter_receivedTrigger.trigger(this, { Received: parsedValue }, null)
-					.then(this.log)
-					.catch(this.error);
-				this.setCapabilityValue('meter_received', parsedValue);
-			}
-		}, 0);
+		if (this.hasCapability('meter_received')) {
+			this.registerCapability('meter_received', 'seMetering', { endpoint: this.currentSummReceivedEnpoint });
+			this.registerAttrReportListener('seMetering', 'currentSummReceived', 600, 600, [null, null],
+				this.oncurrentSummReceived.bind(this), this.currentSummReceivedEnpoint)
+				.catch(err => {
+					this.error('failed to register attr report listener - seMetering/currentSummReceived', err);
+				});
+		}
+		// this.registerAttrReportListener('seMetering', 'currentSummReceived', 600, 600, [null, null], value => {
+		//	const parsedValue = Buffer.from(value).readUIntBE(0, 2) / 1000;
+		// this.log('currentSummReceived', value, parsedValue);
+		// const test = this.getCapabilityValue('meter_received');
+		// this.log('previous meter_received value :', test);
+		// if (value !== test) {
+		// this.meter_receivedTrigger.trigger(this, { Received: parsedValue }, null)
+		// .then(this.log)
+		// .catch(this.error);
+		// this.setCapabilityValue('meter_received', parsedValue);
+		// }
+		// }, 0);
 
 		this.meter_receivedTrigger = new Homey.FlowCardTriggerDevice('Power_received_changed')
 			.register()
@@ -119,6 +143,25 @@ class Plug extends ZigBeeDevice {
 				return Promise.resolve(args.poweroverload_changed === state.poweroverload_changed);
 			});
 
+	}
+
+	onMeteringReport(value) {
+		const parsedValue = value / 10;
+		if (value < 0) return;
+		this.log('instantaneousDemand', value, parsedValue);
+		this.setCapabilityValue('measure_power', parsedValue);
+	}
+
+	oncurrentSummDelivered(value) {
+		const parsedValue = Buffer.from(value).readUIntBE(0, 2) / 1000;
+		this.log('currentSummDelivered', value, parsedValue);
+		this.setCapabilityValue('meter_power', parsedValue);
+	}
+
+	oncurrentSummReceived(value) {
+		const parsedValue = Buffer.from(value).readUIntBE(0, 2) / 1000;
+		this.log('oncurrentSummReceived', value, parsedValue);
+		this.setCapabilityValue('meter_received', parsedValue);
 	}
 
 }
