@@ -8,7 +8,7 @@
       "en": "Support for Zigbee devices by Plugwise"
   },
   "category": "climate",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "compatibility": ">=1.5.13",
   "author": {
       "name": "Martin Brasse",

@@ -153,13 +153,13 @@ class Plug extends ZigBeeDevice {
 	}
 
 	oncurrentSummDelivered(value) {
-		const parsedValue = Buffer.from(value).readUIntBE(0, 2) / 1000;
+		const parsedValue = Buffer.from(value).readUIntBE(0, 6) / 1000;
 		this.log('currentSummDelivered', value, parsedValue);
 		this.setCapabilityValue('meter_power', parsedValue);
 	}
 
 	oncurrentSummReceived(value) {
-		const parsedValue = Buffer.from(value).readUIntBE(0, 2) / 1000;
+		const parsedValue = Buffer.from(value).readUIntBE(0, 6) / 1000;
 		this.log('oncurrentSummReceived', value, parsedValue);
 		this.setCapabilityValue('meter_received', parsedValue);
 	}
