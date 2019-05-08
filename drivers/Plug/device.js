@@ -16,7 +16,7 @@ class Plug extends ZigBeeDevice {
 				get: 'currentSummDelivered',
 				reportParser(value) {
 					this.log('value: ', value);
-					return Buffer.from(value).readUIntBE(0, 2) / 1000;
+					return Buffer.from(value).readUIntBE(0, 6) / 1000;
 				},
 				report: 'currentSummDelivered',
 				getOpts: {
@@ -31,7 +31,7 @@ class Plug extends ZigBeeDevice {
 				get: 'currentSummReceived',
 				reportParser(value) {
 					this.log('value: ', value);
-					return Buffer.from(value).readUIntBE(0, 2) / 1000;
+					return Buffer.from(value).readUIntBE(0, 6) / 1000;
 				},
 				report: 'currentSummReceived',
 				getOpts: {
@@ -44,7 +44,7 @@ class Plug extends ZigBeeDevice {
 			this.registerCapability('measure_power', 'seMetering', {
 				get: 'instantaneousDemand',
 				reportParser(value) {
-					if (value < 0) return;
+					if (value < 0 && value >= -2) return;
 					return value / 10;
 				},
 				report: 'instantaneousDemand',
