@@ -33,7 +33,7 @@ class Plug extends ZigBeeDevice {
 				reportParser(value) {
 					this.log('value: ', value);
 					// return Buffer.from(value).readUIntBE(0, 2) / 1000;
-					return value[1] / 100;
+					return value[1] / 10;
 				},
 				report: 'currentSummReceived',
 				getOpts: {
@@ -142,7 +142,7 @@ class Plug extends ZigBeeDevice {
 
 	oncurrentSummReceived(value) {
 		// const parsedValue = Buffer.from(value).readUIntBE(0, 2) / 1000;
-		const parsedValue = value[1] / 100;
+		const parsedValue = value[1] / 10;
 		this.log('oncurrentSummReceived', value, parsedValue);
 		this.setCapabilityValue('meter_received', parsedValue);
 	}

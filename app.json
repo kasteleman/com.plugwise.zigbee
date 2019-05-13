@@ -43,7 +43,7 @@
       "getable": true,
       "setable": false,
       "units": {
-          "en": "KWh"
+          "en": "Wh"
       },
       "uiComponent": "sensor",
       "uiQuickAction": false
