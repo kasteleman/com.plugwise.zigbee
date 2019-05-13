@@ -46,7 +46,8 @@
           "en": "Wh"
       },
       "uiComponent": "sensor",
-      "uiQuickAction": false
+      "uiQuickAction": false,
+      "icon": "/drivers/Plug/assets/meter_received.svg"
     },
     "alarm_poweroverload": {
       "title": {
@@ -57,7 +58,8 @@
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
-      "uiQuickAction": false
+      "uiQuickAction": false,
+      "icon": "/drivers/Plug/assets/overload.svg"
     }
   },
   "drivers": [
