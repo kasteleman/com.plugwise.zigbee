@@ -108,12 +108,13 @@ class Plug extends ZigBeeDevice {
 				});
 		}
 
-		this.meter_receivedTrigger = new Homey.FlowCardTriggerDevice('Power_received_changed')
-			.register()
-			.registerRunListener((args, state) => {
-				this.log(args, state);
-				return Promise.resolve(args.meter_received_number === state.meter_received_number);
-			});
+		this.meter_receivedTrigger = new Homey.FlowCardTriggerDevice('Power_received_changed');
+		this.meter_receivedTrigger
+			.register();
+		//			.registerRunListener((args, state) => {
+		//				this.log(args, state);
+		//				return Promise.resolve(args.meter_received_number === state.meter_received_number);
+		//			});
 
 		this.power_overloadTrigger = new Homey.FlowCardTriggerDevice('poweroverload_changed')
 			.register()
