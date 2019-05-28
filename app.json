@@ -42,6 +42,7 @@
       "type": "number",
       "getable": true,
       "setable": false,
+      "insights": true,
       "units": {
           "en": "Wh"
       },
