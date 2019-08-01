@@ -8,7 +8,7 @@
       "en": "Support for Zigbee devices by Plugwise"
   },
   "category": "climate",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "compatibility": ">=1.5.13",
   "author": {
       "name": "Martin Brasse",
@@ -27,6 +27,7 @@
       "type": "number",
       "getable": true,
       "setable": false,
+      "insights": true,
       "units": {
           "en": "%"
       },
@@ -58,6 +59,7 @@
       "type": "boolean",
       "getable": true,
       "setable": false,
+      "insights": false,
       "uiComponent": "sensor",
       "uiQuickAction": false,
       "icon": "/drivers/Plug/assets/overload.svg"

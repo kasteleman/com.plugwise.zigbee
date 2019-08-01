@@ -1,6 +1,6 @@
 {
   "name": "com.plugwise.zigbee",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "This app allows you to connect your Tom and Lisa to Homey",
   "main": "app.js",
   "devDependencies": {
