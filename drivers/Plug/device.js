@@ -1,31 +1,118 @@
 'use strict';
 
-const Homey = require('homey');
-
-const ZigBeeDevice = require('homey-meshdriver').ZigBeeDevice;
+const { ZigBeeDevice } = require('homey-zigbeedriver');
+const { CLUSTER } = require('zigbee-clusters');
 
 class Plug extends ZigBeeDevice {
 
-	onMeshInit() {
-		this.printNode();
-		this.enableDebug();
+  async onNodeInit({ zclNode }) {
 
-		if (this.hasCapability('onoff')) this.registerCapability('onoff', 'genOnOff');
-		if (this.hasCapability('meter_power')) {
-			this.registerCapability('meter_power', 'seMetering', {
-				get: 'currentSummDelivered',
-				reportParser(value) {
-					this.log('value: ', value);
-					// return Buffer.from(value).readUIntBE(0, 2) / 10000;
-					return value[1] / 10000;
-				},
-				report: 'currentSummDelivered',
-				getOpts: {
-					getOnStart: true,
-				},
+      this.enableDebug();
+      this.printNode();
 
-			});
+      await super.onNodeInit({ zclNode });
+
+			if (this.hasCapability('onoff')) {
+        await this.configureAttributeReporting([
+          {
+            endpointId: 1,
+            cluster: CLUSTER.ON_OFF,
+            attributeName: 'onOff',
+            minInterval: 0,
+            maxInterval: 300,
+          },
+        ]);
+      }
+
+			if (this.hasCapability('meter_power')) {
+				if (typeof this.meteringFactor !== 'number') {
+			    const { multiplier, divisor } = await zclNode.endpoints[
+			        this.getClusterEndpoint(CLUSTER.METERING)
+			      ]
+			      .clusters[CLUSTER.METERING.NAME]
+			      .readAttributes('multiplier', 'divisor');
+
+			    this.meteringFactor = multiplier / divisor;
+			  }
+				await this.configureAttributeReporting([
+					{
+						endpointId: this.getClusterEndpoint(CLUSTER.METERING),
+						cluster: CLUSTER.METERING,
+						attributeName: 'instantaneousDemand',
+						minInterval: 0,
+						maxInterval: 600, //once per ~5 min
+						minChange: 1,
+					}
+				]);
+
+			}
+
+			if (this.hasCapability('measure_power')) {
+        if (typeof this.activePowerFactor !== 'number') {
+          const { acPowerMultiplier, acPowerDivisor } = await zclNode.endpoints[
+              this.getClusterEndpoint(CLUSTER.ELECTRICAL_MEASUREMENT)
+            ]
+            .clusters[CLUSTER.ELECTRICAL_MEASUREMENT.NAME]
+            .readAttributes('acPowerMultiplier', 'acPowerDivisor');
+
+          this.activePowerFactor = acPowerMultiplier / acPowerDivisor;
+        }
+        await this.configureAttributeReporting([
+          {
+            endpointId: this.getClusterEndpoint(CLUSTER.ELECTRICAL_MEASUREMENT),
+            cluster: CLUSTER.ELECTRICAL_MEASUREMENT,
+            attributeName: 'activePower',
+            minInterval: 0,
+            maxInterval: 600, //once per ~5 min
+            minChange: 10,
+          }
+        ]);
+
+			}
+
+      if (this.hasCapability('meter_received')) {
+        await this.configureAttributeReporting([
+          {
+            endpointId: meteringEndpoint,
+            cluster: CLUSTER.METERING,
+            attributeName: 'currentSummReceived',
+            minInterval: 0,
+            maxInterval: 600, //once per ~5 min
+            minChange: 1,
+          }
+        ]);
+
+        zclNode.endpoints[meteringEndpoint].clusters[CLUSTER.METERING.NAME]
+        .on('attr.currentSummReceived', (currentSummReceived) => {
+          let watt = Math.max(currentSummReceived, 0) / 10000;
+          this.log('watt: ', watt);
+          this.setCapabilityValue('meter_received', watt);
+        });
+      }
+
+      if (this.hasCapability('alarm_poweroverload')) {
+        /*await this.configureAttributeReporting([
+          {
+            endpointId: meteringEndpoint,
+            cluster: CLUSTER.METERING,
+            attributeName: 'acActivePowerOverload',
+            minInterval: 0,
+            maxInterval: 600, //once per ~5 min
+            minChange: 1,
+          }
+        ]); */
+
+        zclNode.endpoints[meteringEndpoint].clusters[CLUSTER.METERING.NAME]
+        .on('attr.currentSummReceived', (acActivePowerOverload) => {
+          //let watt = Math.max(acActivePowerOverload, 0) / 10000;
+          this.log('Overload: ', acActivePowerOverload);
+          this.setCapabilityValue('alarm_poweroverload', acActivePowerOverload === 1);
+        });
+      }
+
 		}
+
+/*'use strict';
 
 		if (this.hasCapability('meter_received')) {
 			this.registerCapability('meter_received', 'seMetering', {
@@ -36,20 +123,6 @@ class Plug extends ZigBeeDevice {
 					return value[1] / 10000;
 				},
 				report: 'currentSummReceived',
-				getOpts: {
-					getOnStart: true,
-				},
-			});
-		}
-
-		if (this.hasCapability('measure_power')) {
-			this.registerCapability('measure_power', 'seMetering', {
-				get: 'instantaneousDemand',
-				reportParser(value) {
-					if (value < 0 && value >= -2) return;
-					return value / 10;
-				},
-				report: 'instantaneousDemand',
 				getOpts: {
 					getOnStart: true,
 				},
@@ -68,33 +141,6 @@ class Plug extends ZigBeeDevice {
 					pollInterval: 300000,
 				},
 			});
-		}
-		// Report is send if status is changed or after 5 min
-		this.registerAttrReportListener('genOnOff', 'onOff', 1, 300, 1, data => {
-			// this.log('onOff', data);
-			this.setCapabilityValue('onoff', data === 1);
-		}, 0);
-
-		// measure_power
-		// Report is send if status is changed with min of 2 Watt or after 5 min
-		if (this.hasCapability('measure_power')) {
-			this.registerCapability('measure_power', 'seMetering', { endpoint: this.meteringEnpoint });
-			this.registerAttrReportListener('seMetering', 'instantaneousDemand', 10, 300, 2,
-				this.onMeteringReport.bind(this), this.meteringEnpoint)
-				.catch(err => {
-					this.error('failed to register attr report listener - seMetering/instantaneousDemand', err);
-				});
-		}
-
-		// meter_power
-		// Report is send in 10 min. Can not be changed.
-		if (this.hasCapability('meter_power')) {
-			this.registerCapability('meter_power', 'seMetering', { endpoint: this.currentSummDeliveredEnpoint });
-			this.registerAttrReportListener('seMetering', 'currentSummDelivered', 600, 600, [null, null],
-				this.oncurrentSummDelivered.bind(this), this.currentSummDeliveredEnpoint)
-				.catch(err => {
-					this.error('failed to register attr report listener - seMetering/currentSummDelivered', err);
-				});
 		}
 
 		// meter_received
@@ -125,28 +171,12 @@ class Plug extends ZigBeeDevice {
 
 	}
 
-	onMeteringReport(value) {
-		if (value < 0 && value >= -2) {
-			return;
-		}
-		const parsedValue = value / 10;
-		this.log('instantaneousDemand', value, parsedValue);
-		this.setCapabilityValue('measure_power', parsedValue);
-	}
-
-	oncurrentSummDelivered(value) {
-		// const parsedValue = Buffer.from(value).readUIntBE(0, 2) / 1000;
-		const parsedValue = value[1] / 10000;
-		this.log('currentSummDelivered', value, parsedValue);
-		this.setCapabilityValue('meter_power', parsedValue);
-	}
-
 	oncurrentSummReceived(value) {
 		// const parsedValue = Buffer.from(value).readUIntBE(0, 2) / 1000;
 		const parsedValue = value[1] / 10000;
 		this.log('oncurrentSummReceived', value, parsedValue);
 		this.setCapabilityValue('meter_received', parsedValue);
-	}
+	}*/
 
 }
 

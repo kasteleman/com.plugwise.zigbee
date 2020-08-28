@@ -36,6 +36,8 @@ class Tom extends ZigBeeDevice {
 			.catch(err => {
 				this.log('could not read ocupancy');
 				this.log(err);
+				this.heatingType = 1;
+				this.log('heatingType: ', this.heatingType);
 			});
 
 		// Register target_temperature capability
