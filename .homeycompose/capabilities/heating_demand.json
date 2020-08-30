@@ -1,0 +1,16 @@
+{
+  "title": {
+    "en": "Heating demand",
+    "nl": "Verwarmingsvraag"
+  },
+  "type": "number",
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "units": {
+    "en": "%"
+  },
+  "uiComponent": "sensor",
+  "uiQuickAction": false,
+  "icon": "/drivers/Tom/assets/heating.svg"
+}

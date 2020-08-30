@@ -1,0 +1,82 @@
+{
+  "name": {
+    "en": "Plug",
+    "nl": "Plug"
+  },
+  "class": "socket",
+  "capabilities": [
+    "onoff",
+    "meter_power",
+    "meter_received",
+    "measure_power",
+    "alarm_poweroverload"
+  ],
+  "mobile": {
+    "components": [
+      {
+        "id": "icon",
+        "capabilities": [
+          "onoff"
+        ]
+      },
+      {
+        "id": "sensor",
+        "capabilities": [
+          "meter_power",
+          "meter_received",
+          "measure_power",
+          "alarm_poweroverload"
+        ],
+        "options": {
+          "icons": {
+            "alarm_poweroverload": "/drivers/Plug/assets/overload.svg",
+            "meter_received": "/drivers/Plug/assets/meter_received.svg"
+          },
+          "showTitle": true
+        }
+      },
+      {
+        "id": "toggle",
+        "capabilities": [
+          "onoff"
+        ]
+      }
+    ]
+  },
+  "images": {
+    "large": "drivers/Plug/assets/images/large.png",
+    "small": "drivers/Plug/assets/images/small.png"
+  },
+  "zigbee": {
+    "manufacturerName": "Plugwise",
+    "productId": "160-01",
+    "endpoints": {
+      "1": {
+        "clusters": [
+          0,
+          3,
+          4,
+          5,
+          6,
+          9,
+          1794,
+          2820
+        ],
+        "bindings": [
+          6,
+          1794,
+          2820
+        ]
+      }
+    },
+
+    "learnmode": {
+      "image": "drivers/Plug/assets/learnmode.svg",
+      "instruction": {
+        "en": "Press the button briefly allowing the plug to be visible for the ZigBee network.\n\nWhen the plug is not paired, it will try to join an available network after pressing this button.\n\nPress and hold the button on the side for 5 seconds and release.\n\nAfter you have released the button, the LED will burn solid red for 5 seconds: the pliug has left the network.",
+        "nl": "Druk kort op de knop zodat de plug zichtbaar wordt voor het ZigBee-netwerk.\n\nAls de plug nog niet op een ander netwerk is aangemeld, zal de plug zich nu aanmelden op het beschikbare netwerk.\n\nOm de plug uit een netwerk te verwijderen, druk de knop op de zijkant 5 seconden in en laat los.\n\nDe LED brandt 5 seconden rood om aan te geven dat deze het netwerk verlaat."
+      }
+    }
+  },
+  "settings": []
+}

@@ -1,0 +1,78 @@
+{
+  "name": {
+    "en": "Qupit “Lisa” zoneregulator",
+    "nl": "Qupit “Lisa” zonebediening"
+  },
+  "class": "thermostat",
+  "capabilities": [
+    "measure_battery",
+    "target_temperature",
+    "measure_temperature"
+  ],
+  "capabilitiesOptions": {
+    "target_temperature": {
+      "min": 4,
+      "max": 28,
+      "step": 0.5
+    }
+  },
+  "images": {
+    "large": "drivers/Lisa/assets/images/large.png",
+    "small": "drivers/Lisa/assets/images/small.png"
+  },
+  "energy": {
+    "batteries": [
+      "AAA",
+      "AAA",
+      "AAA",
+      "AAA"
+    ]
+  },
+  "zigbee": {
+    "manufacturerName": "Plugwise",
+    "productId": "158-01",
+    "endpoints": {
+      "1": {
+        "clusters": [
+          0,
+          1,
+          3,
+          4,
+          5,
+          513
+        ],
+        "bindings": [
+          1,
+          513
+        ]
+      }
+    },
+    "learnmode": {
+      "image": "drivers/Lisa/assets/learnmode.svg",
+      "instruction": {
+        "en": "The zone control contains a push button underneath the back cover\n\nPress the button briefly allowing the zone control to be visible for the gateway. When the zone control is not paired, it will try to join an available network after prrssing the button.\n\nTo remove from a network:\n\n1. Press and hold the button on the backside for 3 seconds and release.\n2. Within 1 second, press and hold the button for 3 seconds again and release.\n3. Within 1 second, press and hold the button for 10 seconds and release.\n\nAfter you have released the button, the LED will burn solid re for 5 seconds: the zone control has left the network.",
+        "nl": "Onder de achterkant van de zonebediening vind je een drukknop.\n\nDruk kort op de knop, zodat de zonebediening zichtbaar wordt voor de ZigBee-gateway. Indien de zonebediening nog niet op een ander netwerk is aangemeld, zal deze nu aanmelden op een beschikbaar netwerk.\n\nVoor verwijdering uit het netwerk voer de volgende acties uit:\n\n 1. Druk de knop op de achterkant 3 seconden in en laat los.\n2. Druk binnen 1 seconde opnieuw de knop 3 seconden in en laat los\n3. Druk binnen 1 seconde de knop 10 seconden in en laat los.\n\nNadat je de knop hebt losgelaten, brandt de LED 5 seconden: de zonebediening verlaat nu het netwerk."
+      }
+    }
+  },
+  "settings": [
+    {
+      "id": "temperature_Calibration",
+      "type": "number",
+      "label": {
+        "en": "Temperature Calibration",
+        "nl": "Temperatuur Calibratie"
+      },
+      "hint": {
+        "en": "Specifies a linear offset to the temperature sensor’s value.\n\nIt will result in the device interpreting all measured sensor values as measured sensor value + offset.\n\nIt does not apply to temperature values reported by other devices as a ‘remote temperature’",
+        "nl": "Specificeert een lineaire offset van de waarde van de temperatuursensor.\n\nHet resultaat is dat het apparaat alle gemeten sensorwaarden interpreteert als gemeten sensorwaarde + offset.\n\nHet is niet van toepassing op temperatuurwaarden die door andere apparaten worden gemeld als een ‘externe temperatuur’"
+      },
+      "value": 0,
+      "attr": {
+        "step": 0.1,
+        "min": -2.5,
+        "max": 2.5
+      }
+    }
+  ]
+}

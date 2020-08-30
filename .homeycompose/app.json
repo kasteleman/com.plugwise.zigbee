@@ -1,0 +1,21 @@
+{
+  "id": "com.plugwise.zigbee",
+  "sdk": 3,
+  "name": {
+    "en": "Plugwise Zigbee Support"
+  },
+  "description": {
+    "en": "Support for Zigbee devices by Plugwise"
+  },
+  "category": "climate",
+  "version": "2.0.0",
+  "compatibility": ">=5.0.0",
+  "author": {
+    "name": "Martin Brasse",
+    "email": "kasteleman@gmail.com"
+  },
+  "images": {
+    "large": "/assets/images/large.png",
+    "small": "/assets/images/small.png"
+  }
+}

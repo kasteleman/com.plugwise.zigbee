@@ -1,188 +1,161 @@
 'use strict';
 
-const Homey = require('homey');
-
-const ZigBeeDevice = require('homey-meshdriver').ZigBeeDevice;
+const { ZigBeeDevice } = require('homey-zigbeedriver');
+const { CLUSTER } = require('zigbee-clusters');
 
 class Tom extends ZigBeeDevice {
 
-	onMeshInit() {
-		this.printNode();
-		this.enableDebug();
-		this.heatingType = 1;
+	async onNodeInit({ zclNode }) {
+
+    this.enableDebug();
+    this.printNode();
+
+  	await super.onNodeInit({ zclNode });
+
+		// read ocupancy
+		try {
+		 const occupancyValue = await this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)].clusters[CLUSTER.THERMOSTAT.NAME].readAttributes('occupancy');
+			 this.heatingType = occupancyValue['ocupancy'];
+			 this.log('Read occupancy Value: ', occupancyValue);
+		 } catch (err) {
+			 this.log('could not read occupancy');
+			 this.log(err);
+			 this.heatingType = 1;
+		 }
 
 		// write programingOperMode
-		this.node.endpoints[0].clusters.hvacThermostat.write('programingOperMode', 2)
+		/* this.node.endpoints[0].clusters.hvacThermostat.write('programingOperMode', 2)
 			.then(result => {
 				this.log('programingOperMode: ', result);
 			})
 			.catch(err => {
 				this.log('could not write programingOperMode');
 				this.log(err);
-			});
-
-		// read occupance
-
-		this.node.endpoints[0].clusters.hvacThermostat.read('ocupancy')
-			.then(result => {
-				this.log('ocupancy: ', result);
-				if (result === 1) {
-					this.heatingType = 1;
-				}
-				if (result === 0) {
-					this.heatingType = 0;
-				}
-			})
-			.catch(err => {
-				this.log('could not read ocupancy');
-				this.log(err);
-				this.heatingType = 1;
-				this.log('heatingType: ', this.heatingType);
-			});
+			}); */
 
 		// Register target_temperature capability
 		// Setpoint of thermostat
-		this.registerCapability('target_temperature', 'hvacThermostat', {
-			set: 'occupiedHeatingSetpoint',
-			setParser(value) {
-				// this.setCommandParser(value).bind(this);
-				if (this.heatingType === 1) {
-					this.node.endpoints[0].clusters.hvacThermostat.write('occupiedHeatingSetpoint',
-						Math.round(value * 1000 / 10))
-						.then(res => {
-							this.log('write occupiedHeatingSetpoint: ', res);
-						})
-						.catch(err => {
-							this.error('Error write occupiedHeatingSetpoint: ', err);
-						});
-					return null;
-				}
-				if (this.heatingType === 0) {
-					this.node.endpoints[0].clusters.hvacThermostat.write('unoccupiedHeatingSetpoint',
-						Math.round(value * 1000 / 10))
-						.then(res => {
-							this.log('write unoccupiedHeatingSetpoint: ', res);
-						})
-						.catch(err => {
-							this.error('Error write unoccupiedHeatingSetpoint: ', err);
-						});
-					return null;
-				}
-
-			},
-			get: 'occupiedHeatingSetpoint',
-			reportParser(value) {
-				return Math.round((value / 100) * 10) / 10;
-			},
-			report: 'occupiedHeatingSetpoint',
-			getOpts: {
-				getOnLine: true,
-				getOnStart: true,
-			},
-		});
-
-		// reportlisteners for the occupiedHeatingSetpoint
-		// this is the setpoint if ocupancy is set to 1, this is per default
-		// if ocupancy is set to 0, unoccupiedHeatingSetpoint is the setpoint for the Heating
-		this.registerAttrReportListener('hvacThermostat', 'occupiedHeatingSetpoint', 300, 0, 10, data => {
-			const parsedValue = Math.round((data / 100) * 10) / 10;
-			this.log('occupiedHeatingSetpoint: ', data, parsedValue);
-			if (this.heatingType === 1) this.setCapabilityValue('target_temperature', parsedValue);
-		}, 0);
-
-		this.registerAttrReportListener('hvacThermostat', 'unoccupiedHeatingSetpoint', 300, 0, 10, data => {
-			const parsedValue = Math.round((data / 100) * 10) / 10;
-			this.log('unoccupiedHeatingSetpoint: ', data, parsedValue);
-			if (this.heatingType === 0) this.setCapabilityValue('target_temperature', parsedValue);
-		}, 0);
-
-		// local temperature
-		this.registerCapability('measure_temperature', 'hvacThermostat', {
-			get: 'localTemp',
-			reportParser(value) {
-				return Math.round((value / 100) * 10) / 10;
-			},
-			report: 'localTemp',
-			getOpts: {
-				getOnLine: true,
-				getOnStart: true,
-			},
-		});
-
-		this.registerAttrReportListener('hvacThermostat', 'localTemp', 1, 300, 50, value => {
-			const parsedValue = Math.round((value / 100) * 10) / 10;
-			this.log('hvacThermostat - localTemp: ', value, parsedValue);
-			this.setCapabilityValue('measure_temperature', parsedValue);
-		}, 0);
-
-		// pIHeatingDemand that reports the % open valve
-		this.registerCapability('Heating_Demand', 'hvacThermostat', {
-			get: 'pIHeatingDemand',
-			reportParser(value) {
-				return value;
-			},
-			report: 'pIHeatingDemand',
-			getOpts: {
-				getOnLine: true,
-				getOnStart: true,
-			},
-		});
-
-		this.registerAttrReportListener('hvacThermostat', 'pIHeatingDemand', 1, 300, 1, value => {
-			this.log('hvacThermostat - pIHeatingDemand: ', value);
-			const test = this.getCapabilityValue('Heating_Demand');
-			this.log('previous valve value :', test);
-			if (value !== test) {
-				this.pIHeatingDemandTrigger.trigger(this, { valve_number: value }, null)
-					.then(this.log)
-					.catch(this.error);
-				this.setCapabilityValue('Heating_Demand', value);
-			}
-		}, 0);
-
-		this.pIHeatingDemandTrigger = new Homey.FlowCardTriggerDevice('pIHeatingDemand_changed')
-			.register()
-			.registerRunListener((args, state) => {
-				this.log(args.valve_number, state.valve_numberargs, args.valve_number === state.valve_number);
-				return Promise.resolve(args.valve_number === state.valve_number);
+		if (this.hasCapability('target_temperature')) {
+			this.registerCapability('target_temperature', CLUSTER.THERMOSTAT, {
+				getOpts: {
+					getOnStart: true,
+				},
 			});
 
-		// battery reporting
-		if (this.hasCapability('measure_battery')) {
-			this.registerCapability('measure_battery', 'genPowerCfg', {
+			await this.configureAttributeReporting([
+				{
+					endpointId: 1,
+					cluster: CLUSTER.THERMOSTAT,
+					attributeName: 'occupiedHeatingSetpoint',
+					minInterval: 0,
+					maxInterval: 300,
+					minChange: 10,
+				},
+			]);
+		}
+
+		// local temperature
+		if (this.hasCapability('measure_temperature')) {
+			this.registerCapability('measure_temperature', CLUSTER.THERMOSTAT, {
+				get: 'localTemperature',
+				reportParser(value) {
+					return Math.round((value / 100) * 10) / 10;
+				},
+				report: 'localTemperature',
 				getOpts: {
 					getOnLine: true,
 					getOnStart: true,
 				},
 			});
+
+			await this.configureAttributeReporting([
+				{
+					endpointId: 1,
+					cluster: CLUSTER.THERMOSTAT,
+					attributeName: 'localTemperature',
+					minInterval: 0,
+					maxInterval: 300,
+					minChange: 50,
+				},
+			]);
 		}
 
-		this.registerAttrReportListener('genPowerCfg', 'batteryPercentageRemaining', 1, 3600, null, value => {
-			const parsedValue = Math.round(value / 2);
-			this.log('genPowerCfg - batteryPercentageRemaining: ', value, parsedValue);
-			this.setCapabilityValue('measure_battery', parsedValue);
-		}, 0);
+		// pIHeatingDemand that reports the % open valve
+		if (this.hasCapability('Heating_Demand')) {
+			this.registerCapability('Heating_Demand', CLUSTER.THERMOSTAT, {
+				get: 'pIHeatingDemand',
+				reportParser(value) {
+					return value;
+				},
+				report: 'pIHeatingDemand',
+				getOpts: {
+					getOnLine: true,
+					getOnStart: true,
+				},
+			});
+
+			await this.configureAttributeReporting([
+				{
+					endpointId: 1,
+					cluster: CLUSTER.THERMOSTAT,
+					attributeName: 'pIHeatingDemand',
+					minInterval: 0,
+					maxInterval: 300,
+					minChange: 1,
+				},
+			]);
+
+			this.pIHeatingDemandTrigger = this.homey.flow.getDeviceTriggerCard('pIHeatingDemand_changed');
+			this.pIHeatingDemandTrigger
+				.registerRunListener(async (args, state) => {
+					return args.args.valve_number === state.valve_number;
+				});
+		}
+
+		//this.pIHeatingDemandTrigger = new Homey.FlowCardTriggerDevice('pIHeatingDemand_changed')
+		//	.register()
+		//	.registerRunListener((args, state) => {
+		//		this.log(args.valve_number, state.valve_numberargs, args.valve_number === state.valve_number);
+		//		return Promise.resolve(args.valve_number === state.valve_number);
+		//	});
+
+		// battery reporting
+		if (this.hasCapability('measure_battery')) {
+			this.registerCapability('measure_battery', CLUSTER.POWER_CONFIGURATION, {
+				getOpts: {
+					getOnLine: true,
+					getOnStart: true,
+				},
+			});
+			await this.configureAttributeReporting([
+				{
+					endpointId: 1,
+					cluster: CLUSTER.POWER_CONFIGURATION,
+					attributeName: 'batteryPercentageRemaining',
+					minInterval: 0,
+					maxInterval: 3600,
+					minChange: null,
+				},
+			]);
+		}
 
 	}
 
-	onSettings(oldSettingsObj, newSettingsObj, changedKeysArr, callback) {
+	onSettings({oldSettings, newSettings, changedKeys}) {
 
-		this.log(changedKeysArr);
-		this.log('newSettingsObj', newSettingsObj);
-		this.log('oldSettingsObj', oldSettingsObj);
-		this.log('test: ', changedKeysArr.includes('temperature_Calibration'));
+		this.log(changedKeys);
+		this.log('newSettingsObj', newSettings);
+		this.log('oldSettingsObj', oldSettings);
+		this.log('test: ', changedKeys.includes('temperature_Calibration'));
 		// localTemperatureCalibration changed
-		if (changedKeysArr.includes('temperature_Calibration')) {
-			this.log('temperature_Calibration: ', newSettingsObj.temperature_Calibration);
-			callback(null, true);
-			this.node.endpoints[0].clusters.hvacThermostat.write('localTemperatureCalibration', newSettingsObj.temperature_Calibration)
-				.then(result => {
-					this.log('localTemperatureCalibration: ', result);
-				})
-				.catch(err => {
-					this.log('could not write localTemperatureCalibration');
-					this.log(err);
-				});
+		if (changedKeys.includes('temperature_Calibration')) {
+			this.log('temperature_Calibration: ', newSettings.temperature_Calibration);
+			try {
+        this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)].clusters[CLUSTER.THERMOSTAT.NAME].writeAttributes({localTemperatureCalibration: newSettings.temperature_Calibration})
+        } catch (err) {
+          this.log('could not write localTemperatureCalibration');
+          this.log(err);
+        }
 		}
 	}
 

@@ -10,9 +10,14 @@ class Plug extends ZigBeeDevice {
       this.enableDebug();
       this.printNode();
 
-      await super.onNodeInit({ zclNode });
+  		await super.onNodeInit({ zclNode });
 
 			if (this.hasCapability('onoff')) {
+        this.registerCapability('onoff', CLUSTER.ON_OFF, {
+    			getOpts: {
+            getOnStart: true,
+    			},
+    		});
         await this.configureAttributeReporting([
           {
             endpointId: 1,
@@ -20,6 +25,7 @@ class Plug extends ZigBeeDevice {
             attributeName: 'onOff',
             minInterval: 0,
             maxInterval: 300,
+            minChange: 1,
           },
         ]);
       }
@@ -34,11 +40,17 @@ class Plug extends ZigBeeDevice {
 
 			    this.meteringFactor = multiplier / divisor;
 			  }
+        this.registerCapability('meter_power', CLUSTER.METERING, {
+          getOpts: {
+            getOnStart: true,
+          },
+          endpoint: this.getClusterEndpoint(CLUSTER.METERING),
+        });
 				await this.configureAttributeReporting([
 					{
 						endpointId: this.getClusterEndpoint(CLUSTER.METERING),
 						cluster: CLUSTER.METERING,
-						attributeName: 'instantaneousDemand',
+						attributeName: 'currentSummationDelivered',
 						minInterval: 0,
 						maxInterval: 600, //once per ~5 min
 						minChange: 1,
@@ -48,20 +60,24 @@ class Plug extends ZigBeeDevice {
 			}
 
 			if (this.hasCapability('measure_power')) {
-        if (typeof this.activePowerFactor !== 'number') {
-          const { acPowerMultiplier, acPowerDivisor } = await zclNode.endpoints[
-              this.getClusterEndpoint(CLUSTER.ELECTRICAL_MEASUREMENT)
-            ]
-            .clusters[CLUSTER.ELECTRICAL_MEASUREMENT.NAME]
-            .readAttributes('acPowerMultiplier', 'acPowerDivisor');
+        this.registerCapability('measure_power', CLUSTER.METERING, {
+          get: 'instantaneousDemand',
+          reportParser(value) {
+            if (value < 0 && value >= -2) return;
+            return value / 10;
+          },
+          report: 'instantaneousDemand',
+          getOpts: {
+            getOnStart: true,
+          },
+          endpoint: this.getClusterEndpoint(CLUSTER.METERING),
+        });
 
-          this.activePowerFactor = acPowerMultiplier / acPowerDivisor;
-        }
         await this.configureAttributeReporting([
           {
-            endpointId: this.getClusterEndpoint(CLUSTER.ELECTRICAL_MEASUREMENT),
-            cluster: CLUSTER.ELECTRICAL_MEASUREMENT,
-            attributeName: 'activePower',
+            endpointId: this.getClusterEndpoint(CLUSTER.METERING),
+            cluster: CLUSTER.METERING,
+            attributeName: 'instantaneousDemand',
             minInterval: 0,
             maxInterval: 600, //once per ~5 min
             minChange: 10,
@@ -71,113 +87,84 @@ class Plug extends ZigBeeDevice {
 			}
 
       if (this.hasCapability('meter_received')) {
+        if (typeof this.meteringFactor !== 'number') {
+          const { multiplier, divisor } = await zclNode.endpoints[
+              this.getClusterEndpoint(CLUSTER.METERING)
+            ]
+            .clusters[CLUSTER.METERING.NAME]
+            .readAttributes('multiplier', 'divisor');
+
+          this.meteringFactor = multiplier / divisor;
+        }
+        this.registerCapability('meter_received', CLUSTER.METERING, {
+          get: 'currentSummationReceived',
+          reportParser(value) {
+            if (value < 0) return null;
+            this.log('value: ', value);
+            // return Buffer.from(value).readUIntBE(0, 2) / 10000;
+            return value  * this.meteringFactor;
+          },
+          report: 'currentSummationReceived',
+          getOpts: {
+            getOnStart: true,
+          },
+          endpoint: this.getClusterEndpoint(CLUSTER.METERING),
+        });
         await this.configureAttributeReporting([
           {
-            endpointId: meteringEndpoint,
+            endpointId: this.getClusterEndpoint(CLUSTER.METERING),
             cluster: CLUSTER.METERING,
-            attributeName: 'currentSummReceived',
+            attributeName: 'currentSummationReceived',
             minInterval: 0,
             maxInterval: 600, //once per ~5 min
             minChange: 1,
           }
         ]);
 
-        zclNode.endpoints[meteringEndpoint].clusters[CLUSTER.METERING.NAME]
-        .on('attr.currentSummReceived', (currentSummReceived) => {
-          let watt = Math.max(currentSummReceived, 0) / 10000;
-          this.log('watt: ', watt);
-          this.setCapabilityValue('meter_received', watt);
-        });
+        this.meter_receivedTrigger = this.homey.flow.getDeviceTriggerCard('Power_received_changed');
+        this.meter_receivedTrigger
+          .registerRunListener(async (args, state) => {
+            return args.args.Power_received_changed === state.Power_received_changed;
+          });
       }
 
       if (this.hasCapability('alarm_poweroverload')) {
-        /*await this.configureAttributeReporting([
-          {
-            endpointId: meteringEndpoint,
-            cluster: CLUSTER.METERING,
-            attributeName: 'acActivePowerOverload',
-            minInterval: 0,
-            maxInterval: 600, //once per ~5 min
-            minChange: 1,
-          }
-        ]); */
-
-        zclNode.endpoints[meteringEndpoint].clusters[CLUSTER.METERING.NAME]
-        .on('attr.currentSummReceived', (acActivePowerOverload) => {
-          //let watt = Math.max(acActivePowerOverload, 0) / 10000;
-          this.log('Overload: ', acActivePowerOverload);
-          this.setCapabilityValue('alarm_poweroverload', acActivePowerOverload === 1);
+        this.registerCapability('alarm_poweroverload', CLUSTER.ELECTRICAL_MEASUREMENT, {
+          get: 'acActivePowerOverload',
+          reportParser(value) {
+            return value === 1;
+          },
+          report: 'acActivePowerOverload',
+          getOpts: {
+            getOnStart: true,
+            pollInterval: 300000,
+          },
         });
+
+        this.power_overloadTrigger = this.homey.flow.getDeviceTriggerCard('poweroverload_changed');
+        this.power_overloadTrigger
+          .registerRunListener(async (args, state) => {
+            return args.args.poweroverload_changed === state.poweroverload_changed;
+          });
       }
 
-		}
-
-/*'use strict';
-
-		if (this.hasCapability('meter_received')) {
-			this.registerCapability('meter_received', 'seMetering', {
-				get: 'currentSummReceived',
-				reportParser(value) {
-					this.log('value: ', value);
-					// return Buffer.from(value).readUIntBE(0, 2) / 10000;
-					return value[1] / 10000;
-				},
-				report: 'currentSummReceived',
-				getOpts: {
-					getOnStart: true,
-				},
-			});
-		}
-
-		if (this.hasCapability('alarm_poweroverload')) {
-			this.registerCapability('alarm_poweroverload', 'haElectricalMeasurement', {
-				get: 'acActivePowerOverload',
-				reportParser(value) {
-					return value === 1;
-				},
-				report: 'acActivePowerOverload',
-				getOpts: {
-					getOnStart: true,
-					pollInterval: 300000,
-				},
-			});
-		}
-
-		// meter_received
-		// Report is send in 10 min. Can not be changed.
-		if (this.hasCapability('meter_received')) {
-			this.registerCapability('meter_received', 'seMetering', { endpoint: this.currentSummReceivedEnpoint });
-			this.registerAttrReportListener('seMetering', 'currentSummReceived', 600, 600, [null, null],
-				this.oncurrentSummReceived.bind(this), this.currentSummReceivedEnpoint)
-				.catch(err => {
-					this.error('failed to register attr report listener - seMetering/currentSummReceived', err);
-				});
-		}
-
-		this.meter_receivedTrigger = new Homey.FlowCardTriggerDevice('Power_received_changed');
+		/* this.meter_receivedTrigger = new Homey.FlowCardTriggerDevice('Power_received_changed');
 		this.meter_receivedTrigger
-			.register();
+			.register(); */
 		//			.registerRunListener((args, state) => {
 		//				this.log(args, state);
 		//				return Promise.resolve(args.meter_received_number === state.meter_received_number);
 		//			});
 
-		this.power_overloadTrigger = new Homey.FlowCardTriggerDevice('poweroverload_changed')
+		/* this.power_overloadTrigger = new Homey.FlowCardTriggerDevice('poweroverload_changed')
 			.register()
 			.registerRunListener((args, state) => {
 				this.log(args, state);
 				return Promise.resolve(args.poweroverload_changed === state.poweroverload_changed);
-			});
+			}); */
 
 	}
-
-	oncurrentSummReceived(value) {
-		// const parsedValue = Buffer.from(value).readUIntBE(0, 2) / 1000;
-		const parsedValue = value[1] / 10000;
-		this.log('oncurrentSummReceived', value, parsedValue);
-		this.setCapabilityValue('meter_received', parsedValue);
-	}*/
-
+  
 }
 
 module.exports = Plug;

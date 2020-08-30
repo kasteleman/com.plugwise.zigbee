@@ -1,0 +1,23 @@
+{
+  "triggers": [
+    {
+      "id": "pIHeatingDemand_changed",
+      "title": {
+        "en": "Heating Demand changed",
+        "nl": "Verwarmingsvraag veranderd"
+      },
+      "tokens": [
+        {
+          "name": "valve_number",
+          "type": "number",
+          "title": {
+            "en": "Heatingdemand",
+            "nl": "Verwarmingsvraag"
+          },
+          "example": 10
+        }
+      ],
+      "args": []
+    }
+  ]
+}

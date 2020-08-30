@@ -1,0 +1,16 @@
+{
+  "title": {
+    "en": "Power Received",
+    "nl": "Ontvangen"
+  },
+  "type": "number",
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "units": {
+    "en": "Wh"
+  },
+  "uiComponent": "sensor",
+  "uiQuickAction": false,
+  "icon": "/drivers/Plug/assets/meter_received.svg"
+}

@@ -1,0 +1,13 @@
+{
+  "title": {
+    "en": "Overload",
+    "nl": "Overbelast"
+  },
+  "type": "boolean",
+  "getable": true,
+  "setable": false,
+  "insights": false,
+  "uiComponent": "sensor",
+  "uiQuickAction": false,
+  "icon": "/drivers/Plug/assets/overload.svg"
+}

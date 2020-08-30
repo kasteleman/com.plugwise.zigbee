@@ -1,0 +1,116 @@
+{
+  "name": {
+    "en": "Qupit “Tom” radiatorvalve",
+    "nl": "Qupit “Tom” radiatorkraan"
+  },
+  "class": "thermostat",
+  "capabilities": [
+    "measure_battery",
+    "target_temperature",
+    "measure_temperature",
+    "heating_demand"
+  ],
+  "capabilitiesOptions": {
+    "target_temperature": {
+      "min": 4,
+      "max": 28,
+      "step": 0.5
+    },
+    "measure_temperature": {
+      "title": {
+        "en": "Room",
+        "nl": "Kamer"
+      }
+    }
+  },
+  "mobile": {
+    "components": [
+      {
+        "id": "icon",
+        "capabilities": []
+      },
+      {
+        "id": "battery",
+        "capabilities": [
+          "measure_battery"
+        ]
+      },
+      {
+        "id": "sensor",
+        "capabilities": [
+          "measure_temperature",
+          "heating_demand"
+        ],
+        "options": {
+          "icons": {
+            "heating_demand": "/drivers/Tom/assets/heating.svg"
+          },
+          "showTitle": true
+        }
+      },
+      {
+        "id": "thermostat",
+        "capabilities": [
+          "target_temperature"
+        ]
+      }
+    ]
+  },
+  "images": {
+    "large": "drivers/Tom/assets/images/large.png",
+    "small": "drivers/Tom/assets/images/small.png"
+  },
+  "energy": {
+    "batteries": [
+      "AA",
+      "AA"
+    ]
+  },
+  "zigbee": {
+    "manufacturerName": "Plugwise",
+    "productId": "106-03",
+    "endpoints": {
+      "1": {
+        "clusters": [
+          0,
+          1,
+          3,
+          4,
+          32,
+          513
+        ],
+        "bindings": [
+          1,
+          513
+        ]
+      }
+    },
+    "learnmode": {
+      "image": "drivers/Tom/assets/learnmode.svg",
+      "instruction": {
+        "en": "TOM contains one push button underneath its cap.\n\nPress the button briefly so TOM becomes visible for the ZigBee-gateway, so you can add TOM to the network.\n\nIt is possible to remove TOM from the network:\n\n1. Press the button for 3 seconds and release.\n2. Within 1 second, press again the button for 3 seconds and release.\n3. Within 1 second, press the button for 10 seconds and release.\n\nAfter you have released the button, the LED will burn solid red for 5 seconds: TOM has left the network.",
+        "nl": "Onder de kap heeft TOM een drukknop.\n\nDruk kort op de knop zodat TOM zichtbaar wordt voor de ZigBee-gateway en kan worden toegevoegd aan het netwerk.\n\nJe kunt TOM verwijderen uit het netwerk:\n\n1. Druk de knop 3 seconden in en laat los.\n2. Druk binnen 1 seconde opnieuw de knop 3 seconden in en laat los.\n3. Druk binnen 1 seconde de knop 10 seconden in en laat los.\n\nNadat je de knop hebt losgelaten, brandt de LED 5 seconden. TOM verlaat nu het netwerk."
+      }
+    }
+  },
+  "settings": [
+    {
+      "id": "temperature_Calibration",
+      "type": "number",
+      "label": {
+        "en": "Temperature Calibration",
+        "nl": "Temperatuur Calibratie"
+      },
+      "hint": {
+        "en": "Specifies a linear offset to the temperature sensor’s value.\n\nIt will result in the device interpreting all measured sensor values as measured sensor value + offset.\n\nIt does not apply to temperature values reported by other devices as a ‘remote temperature’",
+        "nl": "Specificeert een lineaire offset van de waarde van de temperatuursensor.\n\nHet resultaat is dat het apparaat alle gemeten sensorwaarden interpreteert als gemeten sensorwaarde + offset.\n\nHet is niet van toepassing op temperatuurwaarden die door andere apparaten worden gemeld als een ‘externe temperatuur’"
+      },
+      "value": 0,
+      "attr": {
+        "step": 0.1,
+        "min": -2.5,
+        "max": 2.5
+      }
+    }
+  ]
+}
