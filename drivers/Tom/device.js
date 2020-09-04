@@ -2,8 +2,9 @@
 
 const { ZigBeeDevice } = require('homey-zigbeedriver');
 const { CLUSTER } = require('zigbee-clusters');
+const THERMOSTAT = require('../../lib/THERMOSTAT');
 
-class Tom extends ZigBeeDevice {
+class Tom extends THERMOSTAT {
 
 	async onNodeInit({ zclNode }) {
 
@@ -14,13 +15,17 @@ class Tom extends ZigBeeDevice {
 
 		// read ocupancy
 		try {
-		 const occupancyValue = await this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)].clusters[CLUSTER.THERMOSTAT.NAME].readAttributes('occupancy');
-			 this.heatingType = occupancyValue['ocupancy'];
-			 this.log('Read occupancy Value: ', occupancyValue);
-		 } catch (err) {
-			 this.log('could not read occupancy');
-			 this.log(err);
-			 this.heatingType = 1;
+		 const occupancyValue = await this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)]
+		 .clusters[CLUSTER.THERMOSTAT.NAME].readAttributes('occupancy');
+		 this.log('Read occupancy Value: ', occupancyValue);
+		 if (typeof occupancyValue !== 'number' || occupancyValue === 0) {
+			 try {
+				 this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)]
+				 .clusters[CLUSTER.THERMOSTAT.NAME].writeAttributes({l'occupancy': 1})
+			 } catch (err) {
+				 this.log('could not write localTemperatureCalibration');
+				 this.log(err);
+			 }
 		 }
 
 		// write programingOperMode
@@ -32,53 +37,6 @@ class Tom extends ZigBeeDevice {
 				this.log('could not write programingOperMode');
 				this.log(err);
 			}); */
-
-		// Register target_temperature capability
-		// Setpoint of thermostat
-		if (this.hasCapability('target_temperature')) {
-			this.registerCapability('target_temperature', CLUSTER.THERMOSTAT, {
-				getOpts: {
-					getOnStart: true,
-				},
-			});
-
-			await this.configureAttributeReporting([
-				{
-					endpointId: 1,
-					cluster: CLUSTER.THERMOSTAT,
-					attributeName: 'occupiedHeatingSetpoint',
-					minInterval: 0,
-					maxInterval: 300,
-					minChange: 10,
-				},
-			]);
-		}
-
-		// local temperature
-		if (this.hasCapability('measure_temperature')) {
-			this.registerCapability('measure_temperature', CLUSTER.THERMOSTAT, {
-				get: 'localTemperature',
-				reportParser(value) {
-					return Math.round((value / 100) * 10) / 10;
-				},
-				report: 'localTemperature',
-				getOpts: {
-					getOnLine: true,
-					getOnStart: true,
-				},
-			});
-
-			await this.configureAttributeReporting([
-				{
-					endpointId: 1,
-					cluster: CLUSTER.THERMOSTAT,
-					attributeName: 'localTemperature',
-					minInterval: 0,
-					maxInterval: 300,
-					minChange: 50,
-				},
-			]);
-		}
 
 		// pIHeatingDemand that reports the % open valve
 		if (this.hasCapability('Heating_Demand')) {
@@ -112,33 +70,6 @@ class Tom extends ZigBeeDevice {
 				});
 		}
 
-		//this.pIHeatingDemandTrigger = new Homey.FlowCardTriggerDevice('pIHeatingDemand_changed')
-		//	.register()
-		//	.registerRunListener((args, state) => {
-		//		this.log(args.valve_number, state.valve_numberargs, args.valve_number === state.valve_number);
-		//		return Promise.resolve(args.valve_number === state.valve_number);
-		//	});
-
-		// battery reporting
-		if (this.hasCapability('measure_battery')) {
-			this.registerCapability('measure_battery', CLUSTER.POWER_CONFIGURATION, {
-				getOpts: {
-					getOnLine: true,
-					getOnStart: true,
-				},
-			});
-			await this.configureAttributeReporting([
-				{
-					endpointId: 1,
-					cluster: CLUSTER.POWER_CONFIGURATION,
-					attributeName: 'batteryPercentageRemaining',
-					minInterval: 0,
-					maxInterval: 3600,
-					minChange: null,
-				},
-			]);
-		}
-
 	}
 
 	onSettings({oldSettings, newSettings, changedKeys}) {
@@ -151,12 +82,14 @@ class Tom extends ZigBeeDevice {
 		if (changedKeys.includes('temperature_Calibration')) {
 			this.log('temperature_Calibration: ', newSettings.temperature_Calibration);
 			try {
-        this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)].clusters[CLUSTER.THERMOSTAT.NAME].writeAttributes({localTemperatureCalibration: newSettings.temperature_Calibration})
+        this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)]
+				.clusters[CLUSTER.THERMOSTAT.NAME]
+				.writeAttributes({localTemperatureCalibration: newSettings.temperature_Calibration})
         } catch (err) {
           this.log('could not write localTemperatureCalibration');
           this.log(err);
         }
-		}
+		};
 	}
 
 }
