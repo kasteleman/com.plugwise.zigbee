@@ -4,7 +4,8 @@
       "id": "Power_received_changed",
       "title": {
         "en": "Power received changed",
-        "nl": "Ontvangen meterstand is veranderd"
+        "nl": "Ontvangen meterstand is veranderd",
+        "de": "Empfangsleistung verändert"
       },
       "tokens": [
         {
@@ -12,7 +13,8 @@
           "type": "number",
           "title": {
             "en": "Received",
-            "nl": "Ontvangen"
+            "nl": "Ontvangen",
+            "de": "Empfangen"
           },
           "example": 1.1
         }
@@ -23,7 +25,8 @@
       "id": "poweroverload_changed",
       "title": {
         "en": "Power overload detected",
-        "nl": "Overbelasting geconstateerd"
+        "nl": "Overbelasting geconstateerd",
+        "de": "Leistungsüberlastung festgestellt"
       },
       "tokens": [
         {
@@ -31,7 +34,8 @@
           "type": "boolean",
           "title": {
             "en": "Poweroverload",
-            "nl": "Overbelasting"
+            "nl": "Overbelasting",
+            "de": "Leistungsüberlastung"
           }
         }
       ],
