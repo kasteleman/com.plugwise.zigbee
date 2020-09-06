@@ -1,7 +1,8 @@
 {
   "title": {
     "en": "Heating demand",
-    "nl": "Verwarmingsvraag"
+    "nl": "Verwarmingsvraag",
+    "de": "Heizbedarf"
   },
   "type": "number",
   "getable": true,
