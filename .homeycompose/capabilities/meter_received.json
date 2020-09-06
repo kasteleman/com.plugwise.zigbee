@@ -1,7 +1,8 @@
 {
   "title": {
     "en": "Power Received",
-    "nl": "Ontvangen"
+    "nl": "Ontvangen",
+    "de": "Leistungsaufnahme"
   },
   "type": "number",
   "getable": true,
