@@ -1,7 +1,8 @@
 {
   "title": {
     "en": "Overload",
-    "nl": "Overbelast"
+    "nl": "Overbelast",
+    "de": "Überlastung"
   },
   "type": "boolean",
   "getable": true,
