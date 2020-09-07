@@ -40,56 +40,8 @@ class Plug extends ZigBeeDevice {
         this.meteringFactor = multiplier / divisor;
       }
       this.registerCapability('meter_power', CLUSTER.METERING, {
-        set: 'occupiedHeatingSetpoint',
-        setParser(value) {
-          if (this.heatingType === 1) {
-            try {
-              this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)]
-                .clusters[CLUSTER.THERMOSTAT.NAME]
-                .writeAttributes({ occupiedHeatingSetpoint: Math.round((value * 1000) / 10) });
-            } catch (err) {
-              this.log('could not write occupiedHeatingSetpoint');
-              this.log(err);
-            }
-          } else if (this.heatingType === 0) {
-            try {
-              this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)]
-                .clusters[CLUSTER.THERMOSTAT.NAME]
-                .writeAttributes({ unoccupiedHeatingSetpoint: Math.round((value * 1000) / 10) });
-            } catch (err) {
-              this.log('could not write unoccupiedHeatingSetpoint');
-              this.log(err);
-            }
-          }
-          return null;
-        },
-
-        get: 'occupiedHeatingSetpoint',
         getOpts: {
           getOnStart: true,
-        },
-        report: 'occupiedHeatingSetpoint',
-        async reportParser(value) {
-          if (this.heatingType === 1) {
-            try {
-              const targetTemperature = await this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)].clusters[CLUSTER.THERMOSTAT.NAME].readAttributes('occupiedHeatingSetpoint');
-              this.heatingSetpoint = targetTemperature['occupiedHeatingSetpoint'];
-              this.log('Read occupiedHeatingSetpoint Value: ', targetTemperature);
-            } catch (err) {
-              this.log('could not read occupiedHeatingSetpoint');
-              this.log(err);
-            }
-          } else if (this.heatingType === 0) {
-            try {
-              const targetTemperature = await this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)].clusters[CLUSTER.THERMOSTAT.NAME].readAttributes('unoccupiedHeatingSetpoint');
-              this.heatingSetpoint = targetTemperature['unoccupiedHeatingSetpoint'];
-              this.log('unoccupiedHeatingSetpoint Value: ', targetTemperature);
-            } catch (err) {
-              this.log('could not read unoccupiedHeatingSetpoint');
-              this.log(err);
-            }
-          }
-          return Math.round((this.heatingSetpoint / 100) * 10) / 10;
         },
         endpoint: this.getClusterEndpoint(CLUSTER.METERING),
       });
