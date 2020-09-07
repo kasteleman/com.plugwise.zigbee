@@ -1,38 +1,35 @@
 'use strict';
 
-const { ZigBeeDevice } = require('homey-zigbeedriver');
 const { CLUSTER } = require('zigbee-clusters');
 const THERMOSTAT = require('../../lib/THERMOSTAT');
 
 class Lisa extends THERMOSTAT {
 
-	async onNodeInit({ zclNode }) {
-
+  async onNodeInit({ zclNode }) {
     this.enableDebug();
     this.printNode();
 
-  	await super.onNodeInit({ zclNode });
+    await super.onNodeInit({ zclNode });
+  }
 
-	}
-
-	onSettings({oldSettings, newSettings, changedKeys}) {
-
-		this.log(changedKeys);
-		this.log('newSettingsObj', newSettings);
-		this.log('oldSettingsObj', oldSettings);
-		this.log('test: ', changedKeys.includes('temperature_Calibration'));
-		this.log('test2: ', changedKeys.includes('temperature_Calibration'));
-		// localTemperatureCalibration changed
-		if (changedKeys.includes('temperature_Calibration')) {
-			this.log('temperature_Calibration: ', newSettings.temperature_Calibration);
-			try {
-        this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)].clusters[CLUSTER.THERMOSTAT.NAME].writeAttributes({localTemperatureCalibration: newSettings.temperature_Calibration})
-        } catch (err) {
-          this.log('could not write localTemperatureCalibration');
-          this.log(err);
-        }
-		};
-	}
+  onSettings({ oldSettings, newSettings, changedKeys }) {
+    this.log(changedKeys);
+    this.log('newSettingsObj', newSettings);
+    this.log('oldSettingsObj', oldSettings);
+    this.log('test: ', changedKeys.includes('temperature_Calibration'));
+    // localTemperatureCalibration changed
+    if (changedKeys.includes('temperature_Calibration')) {
+      this.log('temperature_Calibration: ', newSettings.temperature_Calibration);
+      try {
+        this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)]
+          .clusters[CLUSTER.THERMOSTAT.NAME]
+          .writeAttributes({ localTemperatureCalibration: newSettings.temperature_Calibration });
+      } catch (err) {
+        this.log('could not write localTemperatureCalibration');
+        this.log(err);
+      }
+    }
+  }
 
 }
 

@@ -6,217 +6,197 @@ const { CLUSTER } = require('zigbee-clusters');
 class Plug extends ZigBeeDevice {
 
   async onNodeInit({ zclNode }) {
+    this.enableDebug();
+    this.printNode();
 
-      this.enableDebug();
-      this.printNode();
+    await super.onNodeInit({ zclNode });
 
-  		await super.onNodeInit({ zclNode });
+    if (this.hasCapability('onoff')) {
+      this.registerCapability('onoff', CLUSTER.ON_OFF, {
+        getOpts: {
+          getOnStart: true,
+        },
+      });
+      await this.configureAttributeReporting([
+        {
+          endpointId: 1,
+          cluster: CLUSTER.ON_OFF,
+          attributeName: 'onOff',
+          minInterval: 0,
+          maxInterval: 300,
+          minChange: 1,
+        },
+      ]);
+    }
 
-			if (this.hasCapability('onoff')) {
-        this.registerCapability('onoff', CLUSTER.ON_OFF, {
-    			getOpts: {
-            getOnStart: true,
-    			},
-    		});
-        await this.configureAttributeReporting([
-          {
-            endpointId: 1,
-            cluster: CLUSTER.ON_OFF,
-            attributeName: 'onOff',
-            minInterval: 0,
-            maxInterval: 300,
-            minChange: 1,
-          },
-        ]);
+    if (this.hasCapability('meter_power')) {
+      if (typeof this.meteringFactor !== 'number') {
+        const { multiplier, divisor } = await zclNode.endpoints[
+          this.getClusterEndpoint(CLUSTER.METERING)
+        ]
+          .clusters[CLUSTER.METERING.NAME]
+          .readAttributes('multiplier', 'divisor');
+
+        this.meteringFactor = multiplier / divisor;
       }
-
-			if (this.hasCapability('meter_power')) {
-				if (typeof this.meteringFactor !== 'number') {
-			    const { multiplier, divisor } = await zclNode.endpoints[
-			        this.getClusterEndpoint(CLUSTER.METERING)
-			      ]
-			      .clusters[CLUSTER.METERING.NAME]
-			      .readAttributes('multiplier', 'divisor');
-
-			    this.meteringFactor = multiplier / divisor;
-			  }
-        this.registerCapability('meter_power', CLUSTER.METERING, {
-          set: 'occupiedHeatingSetpoint',
-          setParser(value) {
-            if (this.heatingType === 1) {
-              try {
-                this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)]
-                  .clusters[CLUSTER.THERMOSTAT.NAME]
-                  .writeAttributes({ occupiedHeatingSetpoint: Math.round((value * 1000) / 10) });
-              } catch (err) {
-                this.log('could not write occupiedHeatingSetpoint');
-                this.log(err);
-              }
-            } else if (this.heatingType === 0) {
-              try {
-                this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)]
-                  .clusters[CLUSTER.THERMOSTAT.NAME]
-                  .writeAttributes({ unoccupiedHeatingSetpoint: Math.round((value * 1000) / 10) });
-              } catch (err) {
-                this.log('could not write unoccupiedHeatingSetpoint');
-                this.log(err);
-              }
+      this.registerCapability('meter_power', CLUSTER.METERING, {
+        set: 'occupiedHeatingSetpoint',
+        setParser(value) {
+          if (this.heatingType === 1) {
+            try {
+              this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)]
+                .clusters[CLUSTER.THERMOSTAT.NAME]
+                .writeAttributes({ occupiedHeatingSetpoint: Math.round((value * 1000) / 10) });
+            } catch (err) {
+              this.log('could not write occupiedHeatingSetpoint');
+              this.log(err);
             }
-            return null;
-          },
-
-          get: 'occupiedHeatingSetpoint',
-          getOpts: {
-            getOnStart: true,
-          },
-          report: 'occupiedHeatingSetpoint',
-          async reportParser(value) {
-            if (this.heatingType === 1) {
-              try {
-                const targetTemperature = await this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)].clusters[CLUSTER.THERMOSTAT.NAME].readAttributes('occupiedHeatingSetpoint');
-                this.heatingSetpoint = targetTemperature['occupiedHeatingSetpoint'];
-                this.log('Read occupiedHeatingSetpoint Value: ', targetTemperature);
-              } catch (err) {
-                this.log('could not read occupiedHeatingSetpoint');
-                this.log(err);
-              }
-            } else if (this.heatingType === 0) {
-              try {
-                const targetTemperature = await this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)].clusters[CLUSTER.THERMOSTAT.NAME].readAttributes('unoccupiedHeatingSetpoint');
-                this.heatingSetpoint = targetTemperature['unoccupiedHeatingSetpoint'];
-                this.log('unoccupiedHeatingSetpoint Value: ', targetTemperature);
-              } catch (err) {
-                this.log('could not read unoccupiedHeatingSetpoint');
-                this.log(err);
-              }
+          } else if (this.heatingType === 0) {
+            try {
+              this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)]
+                .clusters[CLUSTER.THERMOSTAT.NAME]
+                .writeAttributes({ unoccupiedHeatingSetpoint: Math.round((value * 1000) / 10) });
+            } catch (err) {
+              this.log('could not write unoccupiedHeatingSetpoint');
+              this.log(err);
             }
-            return Math.round((this.heatingSetpoint / 100) * 10) / 10;
-          },
-          endpoint: this.getClusterEndpoint(CLUSTER.METERING),
-        });
-				await this.configureAttributeReporting([
-					{
-						endpointId: this.getClusterEndpoint(CLUSTER.METERING),
-						cluster: CLUSTER.METERING,
-						attributeName: 'currentSummationDelivered',
-						minInterval: 0,
-						maxInterval: 600, //once per ~5 min
-						minChange: 1,
-					}
-				]);
-
-			}
-
-			if (this.hasCapability('measure_power')) {
-        this.registerCapability('measure_power', CLUSTER.METERING, {
-          get: 'instantaneousDemand',
-          reportParser(value) {
-            if (value < 0 && value >= -2) return;
-            return value / 10;
-          },
-          report: 'instantaneousDemand',
-          getOpts: {
-            getOnStart: true,
-          },
-          endpoint: this.getClusterEndpoint(CLUSTER.METERING),
-        });
-
-        await this.configureAttributeReporting([
-          {
-            endpointId: this.getClusterEndpoint(CLUSTER.METERING),
-            cluster: CLUSTER.METERING,
-            attributeName: 'instantaneousDemand',
-            minInterval: 0,
-            maxInterval: 600, //once per ~5 min
-            minChange: 10,
           }
-        ]);
+          return null;
+        },
 
-			}
-
-      if (this.hasCapability('meter_received')) {
-        if (typeof this.meteringFactor !== 'number') {
-          const { multiplier, divisor } = await zclNode.endpoints[
-              this.getClusterEndpoint(CLUSTER.METERING)
-            ]
-            .clusters[CLUSTER.METERING.NAME]
-            .readAttributes('multiplier', 'divisor');
-
-          this.meteringFactor = multiplier / divisor;
-        }
-        this.registerCapability('meter_received', CLUSTER.METERING, {
-          get: 'currentSummationReceived',
-          reportParser(value) {
-            if (value < 0) return null;
-            this.log('value: ', value);
-            // return Buffer.from(value).readUIntBE(0, 2) / 10000;
-            return value  * this.meteringFactor;
-          },
-          report: 'currentSummationReceived',
-          getOpts: {
-            getOnStart: true,
-          },
-          endpoint: this.getClusterEndpoint(CLUSTER.METERING),
-        });
-        await this.configureAttributeReporting([
-          {
-            endpointId: this.getClusterEndpoint(CLUSTER.METERING),
-            cluster: CLUSTER.METERING,
-            attributeName: 'currentSummationReceived',
-            minInterval: 0,
-            maxInterval: 600, //once per ~5 min
-            minChange: 1,
+        get: 'occupiedHeatingSetpoint',
+        getOpts: {
+          getOnStart: true,
+        },
+        report: 'occupiedHeatingSetpoint',
+        async reportParser(value) {
+          if (this.heatingType === 1) {
+            try {
+              const targetTemperature = await this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)].clusters[CLUSTER.THERMOSTAT.NAME].readAttributes('occupiedHeatingSetpoint');
+              this.heatingSetpoint = targetTemperature['occupiedHeatingSetpoint'];
+              this.log('Read occupiedHeatingSetpoint Value: ', targetTemperature);
+            } catch (err) {
+              this.log('could not read occupiedHeatingSetpoint');
+              this.log(err);
+            }
+          } else if (this.heatingType === 0) {
+            try {
+              const targetTemperature = await this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)].clusters[CLUSTER.THERMOSTAT.NAME].readAttributes('unoccupiedHeatingSetpoint');
+              this.heatingSetpoint = targetTemperature['unoccupiedHeatingSetpoint'];
+              this.log('unoccupiedHeatingSetpoint Value: ', targetTemperature);
+            } catch (err) {
+              this.log('could not read unoccupiedHeatingSetpoint');
+              this.log(err);
+            }
           }
-        ]);
+          return Math.round((this.heatingSetpoint / 100) * 10) / 10;
+        },
+        endpoint: this.getClusterEndpoint(CLUSTER.METERING),
+      });
+      await this.configureAttributeReporting([
+        {
+          endpointId: this.getClusterEndpoint(CLUSTER.METERING),
+          cluster: CLUSTER.METERING,
+          attributeName: 'currentSummationDelivered',
+          minInterval: 0,
+          maxInterval: 600, // once per ~5 min
+          minChange: 1,
+        },
+      ]);
+    }
 
-        this.meter_receivedTrigger = this.homey.flow.getDeviceTriggerCard('Power_received_changed');
-        this.meter_receivedTrigger
-          .registerRunListener(async (args, state) => {
-            return args.args.Power_received_changed === state.Power_received_changed;
-          });
+    if (this.hasCapability('measure_power')) {
+      this.registerCapability('measure_power', CLUSTER.METERING, {
+        get: 'instantaneousDemand',
+        reportParser(value) {
+          if (value < 0 && value >= -2) return;
+          return value / 10;
+        },
+        report: 'instantaneousDemand',
+        getOpts: {
+          getOnStart: true,
+        },
+        endpoint: this.getClusterEndpoint(CLUSTER.METERING),
+      });
+
+      await this.configureAttributeReporting([
+        {
+          endpointId: this.getClusterEndpoint(CLUSTER.METERING),
+          cluster: CLUSTER.METERING,
+          attributeName: 'instantaneousDemand',
+          minInterval: 0,
+          maxInterval: 600, // once per ~5 min
+          minChange: 10,
+        },
+      ]);
+    }
+
+    if (this.hasCapability('meter_received')) {
+      if (typeof this.meteringFactor !== 'number') {
+        const { multiplier, divisor } = await zclNode.endpoints[
+          this.getClusterEndpoint(CLUSTER.METERING)
+        ]
+          .clusters[CLUSTER.METERING.NAME]
+          .readAttributes('multiplier', 'divisor');
+
+        this.meteringFactor = multiplier / divisor;
       }
+      this.registerCapability('meter_received', CLUSTER.METERING, {
+        get: 'currentSummationReceived',
+        reportParser(value) {
+          if (value < 0) return null;
+          this.log('value: ', value);
+          // return Buffer.from(value).readUIntBE(0, 2) / 10000;
+          return value * this.meteringFactor;
+        },
+        report: 'currentSummationReceived',
+        getOpts: {
+          getOnStart: true,
+        },
+        endpoint: this.getClusterEndpoint(CLUSTER.METERING),
+      });
+      await this.configureAttributeReporting([
+        {
+          endpointId: this.getClusterEndpoint(CLUSTER.METERING),
+          cluster: CLUSTER.METERING,
+          attributeName: 'currentSummationReceived',
+          minInterval: 0,
+          maxInterval: 600, // once per ~5 min
+          minChange: 1,
+        },
+      ]);
 
-      if (this.hasCapability('alarm_poweroverload')) {
-        this.registerCapability('alarm_poweroverload', CLUSTER.ELECTRICAL_MEASUREMENT, {
-          get: 'acActivePowerOverload',
-          reportParser(value) {
-            return value === 1;
-          },
-          report: 'acActivePowerOverload',
-          getOpts: {
-            getOnStart: true,
-            pollInterval: 300000,
-          },
+      this.meter_receivedTrigger = this.homey.flow.getDeviceTriggerCard('Power_received_changed');
+      this.meter_receivedTrigger
+        .registerRunListener(async (args, state) => {
+          return args.args.Power_received_changed === state.Power_received_changed;
         });
+    }
 
-        this.power_overloadTrigger = this.homey.flow.getDeviceTriggerCard('poweroverload_changed');
-        this.power_overloadTrigger
-          .registerRunListener(async (args, state) => {
-            return args.args.poweroverload_changed === state.poweroverload_changed;
-          });
-      }
+    if (this.hasCapability('alarm_poweroverload')) {
+      this.registerCapability('alarm_poweroverload', CLUSTER.ELECTRICAL_MEASUREMENT, {
+        get: 'acActivePowerOverload',
+        reportParser(value) {
+          return value === 1;
+        },
+        report: 'acActivePowerOverload',
+        getOpts: {
+          getOnStart: true,
+          pollInterval: 300000,
+        },
+      });
 
-		/* this.meter_receivedTrigger = new Homey.FlowCardTriggerDevice('Power_received_changed');
-		this.meter_receivedTrigger
-			.register(); */
-		//			.registerRunListener((args, state) => {
-		//				this.log(args, state);
-		//				return Promise.resolve(args.meter_received_number === state.meter_received_number);
-		//			});
-
-		/* this.power_overloadTrigger = new Homey.FlowCardTriggerDevice('poweroverload_changed')
-			.register()
-			.registerRunListener((args, state) => {
-				this.log(args, state);
-				return Promise.resolve(args.poweroverload_changed === state.poweroverload_changed);
-			}); */
-
-	}
+      this.power_overloadTrigger = this.homey.flow.getDeviceTriggerCard('poweroverload_changed');
+      this.power_overloadTrigger
+        .registerRunListener(async (args, state) => {
+          return args.args.poweroverload_changed === state.poweroverload_changed;
+        });
+    }
+  }
 
 }
 
 module.exports = Plug;
-
 
 // [ManagerDrivers] [Plug] [0] ZigBeeDevice has been inited
 // [ManagerDrivers] [Plug] [0] ------------------------------------------

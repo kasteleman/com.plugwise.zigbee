@@ -1,96 +1,77 @@
 'use strict';
 
-const { ZigBeeDevice } = require('homey-zigbeedriver');
 const { CLUSTER } = require('zigbee-clusters');
 const THERMOSTAT = require('../../lib/THERMOSTAT');
 
 class Tom extends THERMOSTAT {
 
-	async onNodeInit({ zclNode }) {
-
+  async onNodeInit({ zclNode }) {
     this.enableDebug();
     this.printNode();
 
-  	await super.onNodeInit({ zclNode });
+    await super.onNodeInit({ zclNode });
 
-		// read ocupancy
-		try {
-		 const occupancyValue = await this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)]
-		 .clusters[CLUSTER.THERMOSTAT.NAME].readAttributes('occupancy');
-		 this.log('Read occupancy Value: ', occupancyValue);
-		 if (typeof occupancyValue !== 'number' || occupancyValue === 0) {
-			 try {
-				 this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)]
-				 .clusters[CLUSTER.THERMOSTAT.NAME].writeAttributes({l'occupancy': 1})
-			 } catch (err) {
-				 this.log('could not write localTemperatureCalibration');
-				 this.log(err);
-			 }
-		 }
+    // write programingOperMode
+    /* this.node.endpoints[0].clusters.hvacThermostat.write('programingOperMode', 2)
+.then(result => {
+this.log('programingOperMode: ', result);
+})
+.catch(err => {
+this.log('could not write programingOperMode');
+this.log(err);
+}); */
 
-		// write programingOperMode
-		/* this.node.endpoints[0].clusters.hvacThermostat.write('programingOperMode', 2)
-			.then(result => {
-				this.log('programingOperMode: ', result);
-			})
-			.catch(err => {
-				this.log('could not write programingOperMode');
-				this.log(err);
-			}); */
+    // pIHeatingDemand that reports the % open valve
+    if (this.hasCapability('Heating_Demand')) {
+      this.registerCapability('Heating_Demand', CLUSTER.THERMOSTAT, {
+        get: 'pIHeatingDemand',
+        reportParser(value) {
+          return value;
+        },
+        report: 'pIHeatingDemand',
+        getOpts: {
+          getOnLine: true,
+          getOnStart: true,
+        },
+      });
 
-		// pIHeatingDemand that reports the % open valve
-		if (this.hasCapability('Heating_Demand')) {
-			this.registerCapability('Heating_Demand', CLUSTER.THERMOSTAT, {
-				get: 'pIHeatingDemand',
-				reportParser(value) {
-					return value;
-				},
-				report: 'pIHeatingDemand',
-				getOpts: {
-					getOnLine: true,
-					getOnStart: true,
-				},
-			});
+      await this.configureAttributeReporting([
+        {
+          endpointId: 1,
+          cluster: CLUSTER.THERMOSTAT,
+          attributeName: 'pIHeatingDemand',
+          minInterval: 0,
+          maxInterval: 300,
+          minChange: 1,
+        },
+      ]);
 
-			await this.configureAttributeReporting([
-				{
-					endpointId: 1,
-					cluster: CLUSTER.THERMOSTAT,
-					attributeName: 'pIHeatingDemand',
-					minInterval: 0,
-					maxInterval: 300,
-					minChange: 1,
-				},
-			]);
+      this.pIHeatingDemandTrigger = this.homey.flow.getDeviceTriggerCard('pIHeatingDemand_changed');
+      this.pIHeatingDemandTrigger
+        .registerRunListener(async (args, state) => {
+          return args.args.valve_number === state.valve_number;
+        });
+    }
+  }
 
-			this.pIHeatingDemandTrigger = this.homey.flow.getDeviceTriggerCard('pIHeatingDemand_changed');
-			this.pIHeatingDemandTrigger
-				.registerRunListener(async (args, state) => {
-					return args.args.valve_number === state.valve_number;
-				});
-		}
-
-	}
-
-	onSettings({oldSettings, newSettings, changedKeys}) {
-
-		this.log(changedKeys);
-		this.log('newSettingsObj', newSettings);
-		this.log('oldSettingsObj', oldSettings);
-		this.log('test: ', changedKeys.includes('temperature_Calibration'));
-		// localTemperatureCalibration changed
-		if (changedKeys.includes('temperature_Calibration')) {
-			this.log('temperature_Calibration: ', newSettings.temperature_Calibration);
-			try {
+  onSettings({ oldSettings, newSettings, changedKeys }) {
+    this.log(changedKeys);
+    this.log('newSettingsObj', newSettings);
+    this.log('oldSettingsObj', oldSettings);
+    this.log('test: ', changedKeys.includes('temperature_Calibration'));
+    // localTemperatureCalibration changed
+    if (changedKeys.includes('temperature_Calibration')) {
+      this.log('temperature_Calibration: ', newSettings.temperature_Calibration);
+      try {
         this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)]
-				.clusters[CLUSTER.THERMOSTAT.NAME]
-				.writeAttributes({localTemperatureCalibration: newSettings.temperature_Calibration})
-        } catch (err) {
-          this.log('could not write localTemperatureCalibration');
-          this.log(err);
-        }
-		};
-	}
+          .clusters[CLUSTER.THERMOSTAT.NAME]
+          .writeAttributes({ localTemperatureCalibration: newSettings.temperature_Calibration });
+      } catch (err) {
+        this.log('could not write localTemperatureCalibration');
+        this.log(err);
+      }
+    }
+  }
 
 }
 

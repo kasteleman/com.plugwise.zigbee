@@ -14,6 +14,26 @@
     "name": "Martin Brasse",
     "email": "kasteleman@gmail.com"
   },
+  "contributors": {
+    "developers": [
+      {
+        "name": "Kasteleman",
+        "email": "kasteleman@gmail.com"
+      }
+    ],
+    "translators": [
+      {
+        "name": "DE: Dirk Göbel"
+      }
+    ]
+  },
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "kasteleman"
+      }
+    }
+  },
   "images": {
     "large": "/assets/images/large.png",
     "small": "/assets/images/small.png"
