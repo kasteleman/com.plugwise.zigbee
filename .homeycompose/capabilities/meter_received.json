@@ -2,7 +2,7 @@
   "title": {
     "en": "Power Received",
     "nl": "Ontvangen",
-    "de": "Leistungsaufnahme"
+    "de": "Empfangene Energie"
   },
   "type": "number",
   "getable": true,
