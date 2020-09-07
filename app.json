@@ -14,6 +14,26 @@
     "name": "Martin Brasse",
     "email": "kasteleman@gmail.com"
   },
+  "contributors": {
+    "developers": [
+      {
+        "name": "Kasteleman",
+        "email": "kasteleman@gmail.com"
+      }
+    ],
+    "translators": [
+      {
+        "name": "DE: Dirk Göbel"
+      }
+    ]
+  },
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "kasteleman"
+      }
+    }
+  },
   "images": {
     "large": "/assets/images/large.png",
     "small": "/assets/images/small.png"
@@ -22,7 +42,8 @@
     {
       "name": {
         "en": "Qupit “Lisa” zoneregulator",
-        "nl": "Qupit “Lisa” zonebediening"
+        "nl": "Qupit “Lisa” zonebediening",
+        "de": "Qupit “Lisa” Zonenregler"
       },
       "class": "thermostat",
       "capabilities": [
@@ -71,8 +92,9 @@
         "learnmode": {
           "image": "drivers/Lisa/assets/learnmode.svg",
           "instruction": {
-            "en": "The zone control contains a push button underneath the back cover\n\nPress the button briefly allowing the zone control to be visible for the gateway. When the zone control is not paired, it will try to join an available network after prrssing the button.\n\nTo remove from a network:\n\n1. Press and hold the button on the backside for 3 seconds and release.\n2. Within 1 second, press and hold the button for 3 seconds again and release.\n3. Within 1 second, press and hold the button for 10 seconds and release.\n\nAfter you have released the button, the LED will burn solid re for 5 seconds: the zone control has left the network.",
-            "nl": "Onder de achterkant van de zonebediening vind je een drukknop.\n\nDruk kort op de knop, zodat de zonebediening zichtbaar wordt voor de ZigBee-gateway. Indien de zonebediening nog niet op een ander netwerk is aangemeld, zal deze nu aanmelden op een beschikbaar netwerk.\n\nVoor verwijdering uit het netwerk voer de volgende acties uit:\n\n 1. Druk de knop op de achterkant 3 seconden in en laat los.\n2. Druk binnen 1 seconde opnieuw de knop 3 seconden in en laat los\n3. Druk binnen 1 seconde de knop 10 seconden in en laat los.\n\nNadat je de knop hebt losgelaten, brandt de LED 5 seconden: de zonebediening verlaat nu het netwerk."
+            "en": "The zone control contains a push button underneath the back cover\n\nPress the button briefly allowing the zone control to be visible for the gateway. When the zone control is not paired, it will try to join an available network after pressing the button.\n\nTo remove from a network:\n\n1. Press and hold the button on the backside for 3 seconds and release.\n2. Within 1 second, press and hold the button for 3 seconds again and release.\n3. Within 1 second, press and hold the button for 10 seconds and release.\n\nAfter you have released the button, the LED will burn solid red for 5 seconds: the zone control has left the network.",
+            "nl": "Onder de achterkant van de zonebediening vind je een drukknop.\n\nDruk kort op de knop, zodat de zonebediening zichtbaar wordt voor de ZigBee-gateway. Indien de zonebediening nog niet op een ander netwerk is aangemeld, zal deze nu aanmelden op een beschikbaar netwerk.\n\nVoor verwijdering uit het netwerk voer de volgende acties uit:\n\n 1. Druk de knop op de achterkant 3 seconden in en laat los.\n2. Druk binnen 1 seconde opnieuw de knop 3 seconden in en laat los\n3. Druk binnen 1 seconde de knop 10 seconden in en laat los.\n\nNadat je de knop hebt losgelaten, brandt de LED 5 seconden: de zonebediening verlaat nu het netwerk.",
+            "de": "Hinter der rückseitigen Abdeckung des Zonenreglers befindet sich eine Drucktaste.\n\nDamit der Zonenregler für das Gateway sichtbar wird, drücken Sie kurz die Taste. Wenn der Zonenregler nicht gepaart ist, wird er nach dem drücken der Taste versuchen sich mit einem verfügbarem Netzwerk zu verbinden.\n\nAus dem Netzwerk entfernen:\n\n1. Halten Sie die Taste auf der Rückseite 3 Sekunden lang gedrückt und lassen Sie sie dann los.\n2. Halten Sie die Taste innerhalb von 1 Sekunde erneut 3 Sekunden lang gedrückt und lassen Sie sie dann los.\n3. Innerhalb von 1 Sekunde die Taste 10 Sekunden lang gedrückt halten und wieder loslassen.\n\nNachdem Sie die Taste losgelassen haben, leuchtet die LED 5 Sekunden lang rot: Der Zonenregler wurde aus dem Netzwerk entfernt."
           }
         }
       },
@@ -82,11 +104,13 @@
           "type": "number",
           "label": {
             "en": "Temperature Calibration",
-            "nl": "Temperatuur Calibratie"
+            "nl": "Temperatuur Calibratie",
+            "de": "Temperaturkalibrierung"
           },
           "hint": {
             "en": "Specifies a linear offset to the temperature sensor’s value.\n\nIt will result in the device interpreting all measured sensor values as measured sensor value + offset.\n\nIt does not apply to temperature values reported by other devices as a ‘remote temperature’",
-            "nl": "Specificeert een lineaire offset van de waarde van de temperatuursensor.\n\nHet resultaat is dat het apparaat alle gemeten sensorwaarden interpreteert als gemeten sensorwaarde + offset.\n\nHet is niet van toepassing op temperatuurwaarden die door andere apparaten worden gemeld als een ‘externe temperatuur’"
+            "nl": "Specificeert een lineaire offset van de waarde van de temperatuursensor.\n\nHet resultaat is dat het apparaat alle gemeten sensorwaarden interpreteert als gemeten sensorwaarde + offset.\n\nHet is niet van toepassing op temperatuurwaarden die door andere apparaten worden gemeld als een ‘externe temperatuur’",
+            "de": "Spezifiziert einen linearen Offset des Wertes des Temperatursensors.\n\nDas Resultat daraus ist, dass das Gerät alle gemessenen Sensorwerte als gemessener Sensorwert + Offset interpretiert.\n\nSie gilt nicht für Temperaturwerte, die von anderen Geräten als ‘Außentemperatur‘ gemeldet werden."
           },
           "value": 0,
           "attr": {
@@ -183,7 +207,8 @@
     {
       "name": {
         "en": "Qupit “Tom” radiatorvalve",
-        "nl": "Qupit “Tom” radiatorkraan"
+        "nl": "Qupit “Tom” radiatorkraan",
+        "de": "Qupit “Tom” Heizkörperthermostat"
       },
       "class": "thermostat",
       "capabilities": [
@@ -201,7 +226,8 @@
         "measure_temperature": {
           "title": {
             "en": "Room",
-            "nl": "Kamer"
+            "nl": "Kamer",
+            "de": "Raum"
           }
         }
       },
@@ -271,7 +297,8 @@
           "image": "drivers/Tom/assets/learnmode.svg",
           "instruction": {
             "en": "TOM contains one push button underneath its cap.\n\nPress the button briefly so TOM becomes visible for the ZigBee-gateway, so you can add TOM to the network.\n\nIt is possible to remove TOM from the network:\n\n1. Press the button for 3 seconds and release.\n2. Within 1 second, press again the button for 3 seconds and release.\n3. Within 1 second, press the button for 10 seconds and release.\n\nAfter you have released the button, the LED will burn solid red for 5 seconds: TOM has left the network.",
-            "nl": "Onder de kap heeft TOM een drukknop.\n\nDruk kort op de knop zodat TOM zichtbaar wordt voor de ZigBee-gateway en kan worden toegevoegd aan het netwerk.\n\nJe kunt TOM verwijderen uit het netwerk:\n\n1. Druk de knop 3 seconden in en laat los.\n2. Druk binnen 1 seconde opnieuw de knop 3 seconden in en laat los.\n3. Druk binnen 1 seconde de knop 10 seconden in en laat los.\n\nNadat je de knop hebt losgelaten, brandt de LED 5 seconden. TOM verlaat nu het netwerk."
+            "nl": "Onder de kap heeft TOM een drukknop.\n\nDruk kort op de knop zodat TOM zichtbaar wordt voor de ZigBee-gateway en kan worden toegevoegd aan het netwerk.\n\nJe kunt TOM verwijderen uit het netwerk:\n\n1. Druk de knop 3 seconden in en laat los.\n2. Druk binnen 1 seconde opnieuw de knop 3 seconden in en laat los.\n3. Druk binnen 1 seconde de knop 10 seconden in en laat los.\n\nNadat je de knop hebt losgelaten, brandt de LED 5 seconden. TOM verlaat nu het netwerk.",
+            "de": "Unter der Abdeckung von TOM befindet sich befindet sich eine Drucktaste.\n\nUm TOM zu dem Netzwerk hinzufügen zu können, drücken Sie kurz den Knopf, damit TOM für das ZigBee-Gateway sichtbar wird.\n\nTOM aus dem Netzwerk entfernen:\n\n1. Halten Sie die Taste 3 Sekunden lang gedrückt und lassen Sie sie dann los.\n2. Halten Sie die Taste innerhalb von 1 Sekunde erneut 3 Sekunden lang gedrückt und lassen Sie sie dann los.\n3. Innerhalb von 1 Sekunde die Taste 10 Sekunden lang gedrückt halten und wieder loslassen.\n\nNachdem Sie die Taste losgelassen haben, leuchtet die LED 5 Sekunden lang auf. TOM wurde aus dem Netzwerk entfernt."
           }
         }
       },
@@ -281,11 +308,13 @@
           "type": "number",
           "label": {
             "en": "Temperature Calibration",
-            "nl": "Temperatuur Calibratie"
+            "nl": "Temperatuur Calibratie",
+            "de": "Temperaturkalibrierung"
           },
           "hint": {
             "en": "Specifies a linear offset to the temperature sensor’s value.\n\nIt will result in the device interpreting all measured sensor values as measured sensor value + offset.\n\nIt does not apply to temperature values reported by other devices as a ‘remote temperature’",
-            "nl": "Specificeert een lineaire offset van de waarde van de temperatuursensor.\n\nHet resultaat is dat het apparaat alle gemeten sensorwaarden interpreteert als gemeten sensorwaarde + offset.\n\nHet is niet van toepassing op temperatuurwaarden die door andere apparaten worden gemeld als een ‘externe temperatuur’"
+            "nl": "Specificeert een lineaire offset van de waarde van de temperatuursensor.\n\nHet resultaat is dat het apparaat alle gemeten sensorwaarden interpreteert als gemeten sensorwaarde + offset.\n\nHet is niet van toepassing op temperatuurwaarden die door andere apparaten worden gemeld als een ‘externe temperatuur’",
+            "de": "Spezifiziert einen linearen Offset des Wertes des Temperatursensors.\n\nDas Resultat daraus ist, dass das Gerät alle gemessenen Sensorwerte als gemessener Sensorwert + Offset interpretiert.\n\nSie gilt nicht für Temperaturwerte, die von anderen Geräten als ‘Außentemperatur‘ gemeldet werden."
           },
           "value": 0,
           "attr": {
@@ -304,7 +333,8 @@
         "id": "Power_received_changed",
         "title": {
           "en": "Power received changed",
-          "nl": "Ontvangen meterstand is veranderd"
+          "nl": "Ontvangen meterstand is veranderd",
+          "de": "Empfangsleistung verändert"
         },
         "tokens": [
           {
@@ -312,7 +342,8 @@
             "type": "number",
             "title": {
               "en": "Received",
-              "nl": "Ontvangen"
+              "nl": "Ontvangen",
+              "de": "Empfangen"
             },
             "example": 1.1
           }
@@ -329,7 +360,8 @@
         "id": "poweroverload_changed",
         "title": {
           "en": "Power overload detected",
-          "nl": "Overbelasting geconstateerd"
+          "nl": "Overbelasting geconstateerd",
+          "de": "Leistungsüberlastung festgestellt"
         },
         "tokens": [
           {
@@ -337,7 +369,8 @@
             "type": "boolean",
             "title": {
               "en": "Poweroverload",
-              "nl": "Overbelasting"
+              "nl": "Overbelasting",
+              "de": "Leistungsüberlastung"
             }
           }
         ],
@@ -353,7 +386,8 @@
         "id": "pIHeatingDemand_changed",
         "title": {
           "en": "Heating Demand changed",
-          "nl": "Verwarmingsvraag veranderd"
+          "nl": "Verwarmingsvraag veranderd",
+          "de": "Heizbedarf verändert"
         },
         "tokens": [
           {
@@ -361,7 +395,8 @@
             "type": "number",
             "title": {
               "en": "Heatingdemand",
-              "nl": "Verwarmingsvraag"
+              "nl": "Verwarmingsvraag",
+              "de": "Heizbedarf"
             },
             "example": 10
           }
@@ -380,7 +415,8 @@
     "alarm_poweroverload": {
       "title": {
         "en": "Overload",
-        "nl": "Overbelast"
+        "nl": "Overbelast",
+        "de": "Überlastung"
       },
       "type": "boolean",
       "getable": true,
@@ -393,7 +429,8 @@
     "heating_demand": {
       "title": {
         "en": "Heating demand",
-        "nl": "Verwarmingsvraag"
+        "nl": "Verwarmingsvraag",
+        "de": "Heizbedarf"
       },
       "type": "number",
       "getable": true,
@@ -409,7 +446,8 @@
     "meter_received": {
       "title": {
         "en": "Power Received",
-        "nl": "Ontvangen"
+        "nl": "Ontvangen",
+        "de": "Empfangene Energie"
       },
       "type": "number",
       "getable": true,
