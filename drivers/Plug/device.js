@@ -1,7 +1,10 @@
 'use strict';
 
 const { ZigBeeDevice } = require('homey-zigbeedriver');
-const { CLUSTER } = require('zigbee-clusters');
+const { Cluster, CLUSTER } = require('zigbee-clusters');
+const ManufacturerBasicCluster = require('../../lib/ManufacturerBasicCluster');
+
+Cluster.addCluster(ManufacturerBasicCluster);
 
 class Plug extends ZigBeeDevice {
 
@@ -10,6 +13,19 @@ class Plug extends ZigBeeDevice {
     this.printNode();
 
     await super.onNodeInit({ zclNode });
+
+    try {
+      const firmWare = await this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.BASIC)]
+      .clusters[CLUSTER.BASIC.NAME].readAttributes('firmwareBuildID');
+      this.log('Read Firmware Value: ', firmWare);
+      this.setSettings({ firmWareVersion: firmWare.firmwareBuildID })
+          .catch(err => {
+            this.error('failed to update firmWareVersion settings', err);
+          });
+    } catch (err) {
+      this.log('could not read firmWare');
+      this.log(err);
+    }
 
     if (this.hasCapability('onoff')) {
       this.registerCapability('onoff', CLUSTER.ON_OFF, {

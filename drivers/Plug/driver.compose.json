@@ -78,5 +78,22 @@
       }
     }
   },
-  "settings": []
+  "settings": [
+    {
+      "type": "group",
+      "label": {
+        "en": "Information"
+      },
+      "children": [
+        {
+          "id": "firmWareVersion",
+          "type": "text",
+          "label": {
+            "en": "Firmware Version"
+          },
+          "value": ""
+        }
+      ]
+    }
+  ]
 }

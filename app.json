@@ -118,6 +118,22 @@
             "min": -2.5,
             "max": 2.5
           }
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Information"
+          },
+          "children": [
+            {
+              "id": "firmWareVersion",
+              "type": "text",
+              "label": {
+                "en": "Firmware Version"
+              },
+              "value": ""
+            }
+          ]
         }
       ],
       "id": "Lisa"
@@ -201,7 +217,24 @@
           }
         }
       },
-      "settings": [],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Information"
+          },
+          "children": [
+            {
+              "id": "firmWareVersion",
+              "type": "text",
+              "label": {
+                "en": "Firmware Version"
+              },
+              "value": ""
+            }
+          ]
+        }
+      ],
       "id": "Plug"
     },
     {
@@ -322,6 +355,22 @@
             "min": -2.5,
             "max": 2.5
           }
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Information"
+          },
+          "children": [
+            {
+              "id": "firmWareVersion",
+              "type": "text",
+              "label": {
+                "en": "Firmware Version"
+              },
+              "value": ""
+            }
+          ]
         }
       ],
       "id": "Tom"

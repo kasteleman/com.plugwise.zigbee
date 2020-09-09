@@ -1,7 +1,11 @@
 'use strict';
 
-const { CLUSTER } = require('zigbee-clusters');
+const { ZigBeeDevice } = require('homey-zigbeedriver');
+const { Cluster, CLUSTER } = require('zigbee-clusters');
+const ManufacturerBasicCluster = require('../../lib/ManufacturerBasicCluster');
 const THERMOSTAT = require('../../lib/THERMOSTAT');
+
+Cluster.addCluster(ManufacturerBasicCluster);
 
 class Lisa extends THERMOSTAT {
 
@@ -10,6 +14,19 @@ class Lisa extends THERMOSTAT {
     this.printNode();
 
     await super.onNodeInit({ zclNode });
+    try {
+      const firmWare = await this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.BASIC)]
+      .clusters[CLUSTER.BASIC.NAME].readAttributes('firmwareBuildID');
+      this.log('Read Firmware Value: ', firmWare);
+      this.setSettings({ firmWareVersion: firmWare.firmwareBuildID })
+					.catch(err => {
+						this.error('failed to update firmWareVersion settings', err);
+					});
+    } catch (err) {
+      this.log('could not read firmWare');
+      this.log(err);
+    }
+    
   }
 
   onSettings({ oldSettings, newSettings, changedKeys }) {
