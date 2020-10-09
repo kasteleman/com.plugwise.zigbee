@@ -39,8 +39,8 @@ this.log(err);
 }); */
 
     // pIHeatingDemand that reports the % open valve
-    if (this.hasCapability('Heating_Demand')) {
-      this.registerCapability('Heating_Demand', CLUSTER.THERMOSTAT, {
+    if (this.hasCapability('heating_demand')) {
+      this.registerCapability('heating_demand', CLUSTER.THERMOSTAT, {
         get: 'pIHeatingDemand',
         reportParser(value) {
           return value;
