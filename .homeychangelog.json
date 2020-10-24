@@ -10,5 +10,8 @@
   },
   "2.0.3": {
     "en": "Fixed Heating Demand"
+  },
+  "2.0.4": {
+    "en": "meter_power corrected"
   }
 }
