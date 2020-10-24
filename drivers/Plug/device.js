@@ -54,7 +54,7 @@ class Plug extends ZigBeeDevice {
           .readAttributes('multiplier', 'divisor');
 
         //this.meteringFactor = multiplier / divisor;
-        this.meteringFactor = 0.001;
+        this.meteringFactor = 0.0001;
       }
       this.registerCapability('meter_power', CLUSTER.METERING, {
         getOpts: {
@@ -109,7 +109,7 @@ class Plug extends ZigBeeDevice {
           .readAttributes('multiplier', 'divisor');
 
         //this.meteringFactor = multiplier / divisor;
-        this.meteringFactor = 0.001;
+        this.meteringFactor = 0.0001;
       }
       this.registerCapability('meter_received', CLUSTER.METERING, {
         get: 'currentSummationReceived',
