@@ -1,5 +1,3 @@
-Plugwise Zigbee Support
-
 Initial SDKv3 Support for Tom, Lisa and Plug by Plugwise
 
 Min Homey Firmware: 5.0.0

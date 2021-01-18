@@ -1,5 +1,3 @@
-# Plugwise Zigbee Support
-
 Initial Support for Tom, Lisa and Plug by Plugwise
 
 Min Homey Firmware: 1.5.4

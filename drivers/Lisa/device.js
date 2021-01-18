@@ -26,7 +26,7 @@ class Lisa extends THERMOSTAT {
       this.log('could not read firmWare');
       this.log(err);
     }
-    
+
   }
 
   onSettings({ oldSettings, newSettings, changedKeys }) {
@@ -40,7 +40,7 @@ class Lisa extends THERMOSTAT {
       try {
         this.zclNode.endpoints[this.getClusterEndpoint(CLUSTER.THERMOSTAT)]
           .clusters[CLUSTER.THERMOSTAT.NAME]
-          .writeAttributes({ localTemperatureCalibration: newSettings.temperature_Calibration });
+          .writeAttributes({ localTemperatureCalibration: newSettings.temperature_Calibration * 10 });
       } catch (err) {
         this.log('could not write localTemperatureCalibration');
         this.log(err);
