@@ -34,6 +34,12 @@
       }
     }
   },
+  "slack contact": {
+    "url": "https://athomcommunity.slack.com/team/kasteleman"
+  },
+  "report issue": {
+    "url": "https://github.com/kasteleman/com.plugwise.zigbee/issues"
+  },
   "images": {
     "large": "/assets/images/large.png",
     "small": "/assets/images/small.png"
