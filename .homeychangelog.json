@@ -13,5 +13,8 @@
   },
   "2.0.4": {
     "en": "meter_power corrected"
+  },
+  "2.0.5": {
+    "en": "removed links in readme and correction in Lisa temperature calibration setting"
   }
 }
