@@ -8,6 +8,7 @@
     "en": "Support for Zigbee devices by Plugwise"
   },
   "category": "climate",
+  "brandColor": "#e3004a",
   "version": "2.0.5",
   "compatibility": ">=5.0.0",
   "author": {
