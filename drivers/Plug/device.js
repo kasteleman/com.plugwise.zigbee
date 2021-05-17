@@ -33,16 +33,21 @@ class Plug extends ZigBeeDevice {
           getOnStart: true,
         },
       });
-      await this.configureAttributeReporting([
-        {
-          endpointId: 1,
-          cluster: CLUSTER.ON_OFF,
-          attributeName: 'onOff',
-          minInterval: 0,
-          maxInterval: 300,
-          minChange: 1,
-        },
-      ]);
+      try {
+        await this.configureAttributeReporting([
+          {
+            endpointId: 1,
+            cluster: CLUSTER.ON_OFF,
+            attributeName: 'onOff',
+            minInterval: 0,
+            maxInterval: 300,
+            minChange: 1,
+          },
+        ]);
+      } catch (err) {
+        this.log('could not configure Attribute Reporting ON_OFF');
+        this.log(err);
+        }
     }
 
     if (this.hasCapability('meter_power')) {
@@ -62,16 +67,21 @@ class Plug extends ZigBeeDevice {
         },
         endpoint: this.getClusterEndpoint(CLUSTER.METERING),
       });
-      await this.configureAttributeReporting([
-        {
-          endpointId: this.getClusterEndpoint(CLUSTER.METERING),
-          cluster: CLUSTER.METERING,
-          attributeName: 'currentSummationDelivered',
-          minInterval: 0,
-          maxInterval: 600, // once per ~5 min
-          minChange: 1,
-        },
-      ]);
+      try {
+        await this.configureAttributeReporting([
+          {
+            endpointId: this.getClusterEndpoint(CLUSTER.METERING),
+            cluster: CLUSTER.METERING,
+            attributeName: 'currentSummationDelivered',
+            minInterval: 0,
+            maxInterval: 600, // once per ~5 min
+            minChange: 1,
+          },
+        ]);
+      } catch (err) {
+        this.log('could not configure Attribute Reporting currentSummationDelivered');
+        this.log(err);
+        }
     }
 
     if (this.hasCapability('measure_power')) {
@@ -87,17 +97,21 @@ class Plug extends ZigBeeDevice {
         },
         endpoint: this.getClusterEndpoint(CLUSTER.METERING),
       });
-
-      await this.configureAttributeReporting([
-        {
-          endpointId: this.getClusterEndpoint(CLUSTER.METERING),
-          cluster: CLUSTER.METERING,
-          attributeName: 'instantaneousDemand',
-          minInterval: 0,
-          maxInterval: 600, // once per ~5 min
-          minChange: 10,
-        },
-      ]);
+      try {
+        await this.configureAttributeReporting([
+          {
+            endpointId: this.getClusterEndpoint(CLUSTER.METERING),
+            cluster: CLUSTER.METERING,
+            attributeName: 'instantaneousDemand',
+            minInterval: 0,
+            maxInterval: 600, // once per ~5 min
+            minChange: 10,
+          },
+        ]);
+      } catch (err) {
+        this.log('could not configure Attribute Reporting instantaneousDemand');
+        this.log(err);
+        }
     }
 
     if (this.hasCapability('meter_received')) {
@@ -125,16 +139,21 @@ class Plug extends ZigBeeDevice {
         },
         endpoint: this.getClusterEndpoint(CLUSTER.METERING),
       });
-      await this.configureAttributeReporting([
-        {
-          endpointId: this.getClusterEndpoint(CLUSTER.METERING),
-          cluster: CLUSTER.METERING,
-          attributeName: 'currentSummationReceived',
-          minInterval: 0,
-          maxInterval: 600, // once per ~5 min
-          minChange: 1,
-        },
-      ]);
+      try {
+        await this.configureAttributeReporting([
+          {
+            endpointId: this.getClusterEndpoint(CLUSTER.METERING),
+            cluster: CLUSTER.METERING,
+            attributeName: 'currentSummationReceived',
+            minInterval: 0,
+            maxInterval: 600, // once per ~5 min
+            minChange: 1,
+          },
+        ]);
+      } catch (err) {
+        this.log('could not configure Attribute Reporting currentSummationReceived');
+        this.log(err);
+        }
 
       this.meter_receivedTrigger = this.homey.flow.getDeviceTriggerCard('Power_received_changed');
       this.meter_receivedTrigger

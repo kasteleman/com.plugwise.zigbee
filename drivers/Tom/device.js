@@ -3,11 +3,11 @@
 const { ZigBeeDevice } = require('homey-zigbeedriver');
 const { Cluster, CLUSTER } = require('zigbee-clusters');
 const ManufacturerBasicCluster = require('../../lib/ManufacturerBasicCluster');
-const THERMOSTAT = require('../../lib/THERMOSTAT');
+const THERMOSTAAT = require('../../lib/THERMOSTAAT');
 
 Cluster.addCluster(ManufacturerBasicCluster);
 
-class Tom extends THERMOSTAT {
+class Tom extends THERMOSTAAT {
 
   async onNodeInit({ zclNode }) {
     this.enableDebug();
@@ -28,7 +28,6 @@ class Tom extends THERMOSTAT {
       this.log(err);
     }
 
-    // write programingOperMode
     /* this.node.endpoints[0].clusters.hvacThermostat.write('programingOperMode', 2)
 .then(result => {
 this.log('programingOperMode: ', result);
@@ -38,38 +37,7 @@ this.log('could not write programingOperMode');
 this.log(err);
 }); */
 
-    // pIHeatingDemand that reports the % open valve
-    if (this.hasCapability('heating_demand')) {
-      this.registerCapability('heating_demand', CLUSTER.THERMOSTAT, {
-        get: 'pIHeatingDemand',
-        reportParser(value) {
-          return value;
-        },
-        report: 'pIHeatingDemand',
-        getOpts: {
-          getOnLine: true,
-          getOnStart: true,
-        },
-      });
-
-      await this.configureAttributeReporting([
-        {
-          endpointId: 1,
-          cluster: CLUSTER.THERMOSTAT,
-          attributeName: 'pIHeatingDemand',
-          minInterval: 0,
-          maxInterval: 300,
-          minChange: 1,
-        },
-      ]);
-
-      this.pIHeatingDemandTrigger = this.homey.flow.getDeviceTriggerCard('pIHeatingDemand_changed');
-      this.pIHeatingDemandTrigger
-        .registerRunListener(async (args, state) => {
-          return args.args.valve_number === state.valve_number;
-        });
-    }
-  }
+}
 
   onSettings({ oldSettings, newSettings, changedKeys }) {
     this.log(changedKeys);

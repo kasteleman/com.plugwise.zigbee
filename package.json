@@ -14,7 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "homey-zigbeedriver": "^1.6.1",
+    "homey-zigbeedriver": "^1.6.4",
     "zigbee-clusters": "^1.4.0"
   }
 }

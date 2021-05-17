@@ -3,11 +3,11 @@
 const { ZigBeeDevice } = require('homey-zigbeedriver');
 const { Cluster, CLUSTER } = require('zigbee-clusters');
 const ManufacturerBasicCluster = require('../../lib/ManufacturerBasicCluster');
-const THERMOSTAT = require('../../lib/THERMOSTAT');
+const THERMOSTAAT = require('../../lib/THERMOSTAAT');
 
 Cluster.addCluster(ManufacturerBasicCluster);
 
-class Lisa extends THERMOSTAT {
+class Lisa extends THERMOSTAAT {
 
   async onNodeInit({ zclNode }) {
     this.enableDebug();
